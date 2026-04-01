@@ -1,0 +1,1 @@
+// Chat detail screen — placeholder
