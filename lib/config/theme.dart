@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static ThemeData get light {
-    return ThemeData(
-      colorSchemeSeed: const Color(0xFF2E7D32),
+  static const _seed = Color(0xFF2E7D32);
+
+  static ThemeData get light => _build(Brightness.light);
+  static ThemeData get dark => _build(Brightness.dark);
+
+  static ThemeData _build(Brightness brightness) {
+    final base = ThemeData(
+      colorSchemeSeed: _seed,
+      brightness: brightness,
       useMaterial3: true,
-      brightness: Brightness.light,
+    );
+    return base.copyWith(
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(),
+        isDense: true,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
     );
   }
 }

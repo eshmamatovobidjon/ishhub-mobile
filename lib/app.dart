@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'config/constants.dart';
+import 'config/theme.dart';
+import 'router.dart';
 
-class IshHubApp extends StatelessWidget {
+class IshHubApp extends ConsumerWidget {
   const IshHubApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'IshHub',
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF2E7D32),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(child: Text('IshHub')),
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      routerConfig: router,
     );
   }
 }
