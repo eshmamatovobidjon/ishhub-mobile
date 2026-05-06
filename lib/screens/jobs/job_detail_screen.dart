@@ -160,6 +160,16 @@ class _JobDetailView extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
+          if (isCreator && _canCancelJob(job)) ...[
+            _CancelJobAction(job: job, jobId: jobId),
+            const SizedBox(height: 16),
+          ],
+
+          if (_canShowClientRecovery(job, isCreator)) ...[
+            _ClientRecoveryPanel(),
+            const SizedBox(height: 16),
+          ],
+
           // --- Worker primary action: send / view offer -----------------
           if (isWorker &&
               !isCreator &&
@@ -280,6 +290,232 @@ class _JobDetailView extends ConsumerWidget {
 
   String _statusLabel(AppLocalizations l10n, String status) {
     return _statusLabelFor(l10n, status);
+  }
+}
+
+bool _canCancelJob(Job job) {
+  if (!{'posted', 'assigned', 'in_progress'}.contains(job.status)) {
+    return false;
+  }
+  return !job.assignments.any(
+    (assignment) =>
+        assignment.status == 'done' ||
+        assignment.status == 'completed' ||
+        assignment.doneAt != null ||
+        assignment.completedAt != null ||
+        assignment.payment != null,
+  );
+}
+
+bool _canShowClientRecovery(Job job, bool isCreator) {
+  return isCreator &&
+      job.status == 'posted' &&
+      job.assignments.any((assignment) => assignment.status == 'cancelled');
+}
+
+class _ClientRecoveryPanel extends StatelessWidget {
+  const _ClientRecoveryPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.person_off_outlined,
+                  color: theme.colorScheme.onSecondaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.assignmentCancelClientRecoveryTitle,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.assignmentCancelClientRecoveryBody,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSecondaryContainer,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => context.go('/feed'),
+              icon: const Icon(Icons.search),
+              label: Text(l10n.assignmentCancelFindWorkerAction),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CancelJobAction extends ConsumerStatefulWidget {
+  final Job job;
+  final String jobId;
+  const _CancelJobAction({required this.job, required this.jobId});
+
+  @override
+  ConsumerState<_CancelJobAction> createState() => _CancelJobActionState();
+}
+
+class _CancelJobActionState extends ConsumerState<_CancelJobAction> {
+  bool _busy = false;
+
+  Future<void> _cancel() async {
+    final reason = await _CancelJobSheet.show(
+      context,
+      hasAssignments: widget.job.assignments.isNotEmpty,
+    );
+    if (reason == null) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(jobsRepositoryProvider).cancelJob(
+            widget.jobId,
+            reason: reason.trim(),
+          );
+      _invalidateJobWorkState(ref, widget.jobId);
+      if (!mounted) return;
+      showSnack(context, AppLocalizations.of(context).jobCancelSuccess);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      _invalidateJobWorkState(ref, widget.jobId);
+      showSnack(context, e.message, error: true);
+    } catch (_) {
+      if (mounted) {
+        showSnack(context, AppLocalizations.of(context).jobDetailActionFailed,
+            error: true);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: OutlinedButton.icon(
+        onPressed: _busy ? null : _cancel,
+        icon: _busy
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.cancel_outlined),
+        label: Text(l10n.jobCancelAction),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.error,
+        ),
+      ),
+    );
+  }
+}
+
+class _CancelJobSheet extends StatefulWidget {
+  final bool hasAssignments;
+  const _CancelJobSheet({required this.hasAssignments});
+
+  static Future<String?> show(
+    BuildContext context, {
+    required bool hasAssignments,
+  }) {
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _CancelJobSheet(hasAssignments: hasAssignments),
+    );
+  }
+
+  @override
+  State<_CancelJobSheet> createState() => _CancelJobSheetState();
+}
+
+class _CancelJobSheetState extends State<_CancelJobSheet> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 8,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.jobCancelConfirmTitle,
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Text(
+            widget.hasAssignments
+                ? l10n.jobCancelAssignedBody
+                : l10n.jobCancelPostedBody,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _reason,
+            maxLines: 3,
+            maxLength: 500,
+            decoration: InputDecoration(labelText: l10n.jobCancelReasonLabel),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(null),
+                  child: Text(l10n.jobCancelKeepAction),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => Navigator.of(context).pop(_reason.text),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: scheme.error,
+                    foregroundColor: scheme.onError,
+                  ),
+                  icon: const Icon(Icons.cancel_outlined),
+                  label: Text(l10n.jobCancelConfirmAction),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -648,6 +884,13 @@ class _AssignmentControlsState extends ConsumerState<_AssignmentControls> {
     final repo = ref.read(assignmentsRepositoryProvider);
 
     final actions = <Widget>[];
+    final canCancelAssignment = widget.isWorker &&
+        a.status == 'assigned' &&
+        a.startedAt == null &&
+        a.doneAt == null &&
+        a.completedAt == null &&
+        a.cancelledAt == null &&
+        payment == null;
     if (widget.isWorker) {
       if (a.arrivedAt == null) {
         actions.add(
@@ -666,6 +909,14 @@ class _AssignmentControlsState extends ConsumerState<_AssignmentControls> {
           final c = await _coords();
           await _do(() => repo.done(a.id, lat: c.lat, lng: c.lng));
         }));
+      }
+      if (canCancelAssignment) {
+        actions.add(_btn(
+          l10n.assignmentCancelAction,
+          Icons.cancel_outlined,
+          _cancelAssignment,
+          destructive: true,
+        ));
       }
     } else {
       // Client confirms
@@ -809,11 +1060,37 @@ class _AssignmentControlsState extends ConsumerState<_AssignmentControls> {
     });
   }
 
-  Widget _btn(String label, IconData icon, VoidCallback onTap) {
+  Future<void> _cancelAssignment() async {
+    final reason = await _CancelAssignmentSheet.show(context);
+    if (reason == null) return;
+    await _do(() async {
+      await ref
+          .read(assignmentsRepositoryProvider)
+          .cancel(widget.assignment.id, reason: reason.trim());
+      if (mounted) {
+        showSnack(
+            context, AppLocalizations.of(context).assignmentCancelSuccess);
+      }
+    });
+  }
+
+  Widget _btn(
+    String label,
+    IconData icon,
+    VoidCallback onTap, {
+    bool destructive = false,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: FilledButton.icon(
         onPressed: _busy ? null : onTap,
+        style: destructive
+            ? FilledButton.styleFrom(
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError,
+              )
+            : null,
         icon: Icon(icon, size: 18),
         label: Text(label),
       ),
@@ -829,6 +1106,86 @@ class _AssignmentControlsState extends ConsumerState<_AssignmentControls> {
       child: Text(
         l10n.assignmentStamp(label, fmt.format(when.toLocal())),
         style: theme.textTheme.bodySmall,
+      ),
+    );
+  }
+}
+
+class _CancelAssignmentSheet extends StatefulWidget {
+  const _CancelAssignmentSheet();
+
+  static Future<String?> show(BuildContext context) {
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const _CancelAssignmentSheet(),
+    );
+  }
+
+  @override
+  State<_CancelAssignmentSheet> createState() => _CancelAssignmentSheetState();
+}
+
+class _CancelAssignmentSheetState extends State<_CancelAssignmentSheet> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 8,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.assignmentCancelConfirmTitle,
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Text(l10n.assignmentCancelConfirmBody),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _reason,
+            maxLines: 3,
+            maxLength: 500,
+            decoration: InputDecoration(labelText: l10n.jobCancelReasonLabel),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(null),
+                  child: Text(l10n.assignmentCancelKeepAction),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => Navigator.of(context).pop(_reason.text),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: scheme.error,
+                    foregroundColor: scheme.onError,
+                  ),
+                  icon: const Icon(Icons.cancel_outlined),
+                  label: Text(l10n.assignmentCancelConfirmAction),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

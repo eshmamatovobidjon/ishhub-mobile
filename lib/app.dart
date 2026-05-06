@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/constants.dart';
 import 'config/theme.dart';
 import 'l10n/generated/app_localizations.dart';
+import 'providers/push_notifications_provider.dart';
 import 'providers/theme_mode_provider.dart';
 import 'providers/user_socket_provider.dart';
 import 'router.dart';
@@ -15,6 +16,7 @@ class IshHubApp extends ConsumerWidget {
     // Mount the per-user WebSocket + realtime event router. It self-manages
     // connect/disconnect based on auth state.
     ref.watch(realtimeListenerProvider);
+    ref.watch(pushNotificationsProvider);
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeControllerProvider);
     final locale = ref.watch(localeControllerProvider);

@@ -8,13 +8,17 @@ import '../../models/geo.dart';
 import '../../models/job.dart';
 import '../../models/nearby_worker.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/chat_provider.dart';
 import '../../providers/feed_provider.dart';
 import '../../providers/repositories.dart';
+import '../../providers/safety_provider.dart';
 import '../../providers/worker_search_provider.dart';
+import '../../services/api_client.dart';
 import '../../services/location_service.dart';
-import '../../widgets/notification_bell.dart';
 import '../../widgets/async_state_view.dart';
 import '../../widgets/job_card.dart';
+import '../../widgets/notification_bell.dart';
+import '../../widgets/snack.dart';
 
 enum _FeedView { list, map }
 
@@ -766,12 +770,12 @@ class _WorkerMeta extends StatelessWidget {
   }
 }
 
-class _NearbyWorkerSheet extends StatelessWidget {
+class _NearbyWorkerSheet extends ConsumerWidget {
   final NearbyWorker worker;
   const _NearbyWorkerSheet({required this.worker});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final name = _workerName(l10n, worker);
@@ -809,6 +813,33 @@ class _NearbyWorkerSheet extends StatelessWidget {
                   ),
                 ),
                 _TrustPill(worker: worker),
+                PopupMenuButton<_WorkerSafetyAction>(
+                  tooltip: l10n.safetyMenuTooltip,
+                  onSelected: (action) {
+                    switch (action) {
+                      case _WorkerSafetyAction.report:
+                        _reportWorker(context, ref, worker);
+                      case _WorkerSafetyAction.block:
+                        _blockWorker(context, ref, worker);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: _WorkerSafetyAction.report,
+                      child: ListTile(
+                        leading: const Icon(Icons.flag_outlined),
+                        title: Text(l10n.safetyReportAction),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _WorkerSafetyAction.block,
+                      child: ListTile(
+                        leading: const Icon(Icons.block_outlined),
+                        title: Text(l10n.safetyBlockAction),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -843,12 +874,356 @@ class _NearbyWorkerSheet extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
+                onPressed: () => _openContact(context, worker),
+                icon: const Icon(Icons.chat_bubble_outline),
+                label: Text(l10n.contactWorkerAction),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
                   context.push('/jobs/new');
                 },
                 icon: const Icon(Icons.post_add_outlined),
                 label: Text(l10n.findWorkersPostJobAction),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openContact(BuildContext context, NearbyWorker worker) {
+    Navigator.of(context).pop();
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => _ContactWorkerSheet(worker: worker),
+    );
+  }
+
+  Future<void> _blockWorker(
+    BuildContext context,
+    WidgetRef ref,
+    NearbyWorker worker,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final name = _workerName(l10n, worker);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.safetyBlockTitle(name)),
+        content: Text(l10n.safetyBlockConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.safetyBlockAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    try {
+      await ref.read(safetyRepositoryProvider).blockUser(worker.workerId);
+      ref.invalidate(myBlocksProvider);
+      ref.invalidate(nearbyWorkersProvider);
+      ref.invalidate(threadsProvider);
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+      showSnack(context, l10n.safetyBlocked(name));
+    } on ApiException catch (e) {
+      if (context.mounted) showSnack(context, e.message, error: true);
+    } catch (_) {
+      if (context.mounted) {
+        showSnack(context, l10n.commonNetworkError, error: true);
+      }
+    }
+  }
+
+  Future<void> _reportWorker(
+    BuildContext context,
+    WidgetRef ref,
+    NearbyWorker worker,
+  ) async {
+    final reported = await showModalBottomSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: _WorkerReportSheet(worker: worker),
+      ),
+    );
+    if (reported == true && context.mounted) {
+      showSnack(context, AppLocalizations.of(context).safetyReportSent);
+    }
+  }
+}
+
+enum _WorkerSafetyAction { report, block }
+
+class _WorkerReportSheet extends ConsumerStatefulWidget {
+  final NearbyWorker worker;
+  const _WorkerReportSheet({required this.worker});
+
+  @override
+  ConsumerState<_WorkerReportSheet> createState() => _WorkerReportSheetState();
+}
+
+class _WorkerReportSheetState extends ConsumerState<_WorkerReportSheet> {
+  final _details = TextEditingController();
+  String _reason = 'abuse';
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _details.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref.read(safetyRepositoryProvider).reportUser(
+            userId: widget.worker.workerId,
+            reason: _reason,
+            details: _details.text.trim(),
+          );
+      if (mounted) Navigator.of(context).pop(true);
+    } on ApiException catch (e) {
+      if (mounted) showSnack(context, e.message, error: true);
+    } catch (_) {
+      if (mounted) showSnack(context, l10n.commonNetworkError, error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final name = _workerName(l10n, widget.worker);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.safetyReportTitle(name),
+                style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(l10n.safetyReportSubtitle, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: _reason,
+              decoration:
+                  InputDecoration(labelText: l10n.safetyReportReasonLabel),
+              items: const [
+                'abuse',
+                'spam',
+                'fraud',
+                'off_platform',
+                'safety',
+                'other',
+              ]
+                  .map(
+                    (reason) => DropdownMenuItem(
+                      value: reason,
+                      child: Text(_reportReasonLabel(l10n, reason)),
+                    ),
+                  )
+                  .toList(growable: false),
+              onChanged: _busy
+                  ? null
+                  : (value) => setState(() => _reason = value ?? 'other'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _details,
+              minLines: 3,
+              maxLines: 5,
+              maxLength: 4000,
+              decoration: InputDecoration(
+                labelText: l10n.safetyReportDetailsLabel,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: _busy ? null : _submit,
+              icon: _busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.flag_outlined),
+              label: Text(l10n.safetyReportSubmit),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ContactWorkerSheet extends ConsumerStatefulWidget {
+  final NearbyWorker worker;
+  const _ContactWorkerSheet({required this.worker});
+
+  @override
+  ConsumerState<_ContactWorkerSheet> createState() =>
+      _ContactWorkerSheetState();
+}
+
+class _ContactWorkerSheetState extends ConsumerState<_ContactWorkerSheet> {
+  final TextEditingController _message = TextEditingController();
+  bool _initialized = false;
+  bool _busy = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    final l10n = AppLocalizations.of(context);
+    _message.text = l10n.contactWorkerDefaultMessage(
+      _workerName(l10n, widget.worker),
+    );
+    _initialized = true;
+  }
+
+  @override
+  void dispose() {
+    _message.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    final origin = ref.read(workerSearchOriginProvider);
+    final text = _message.text.trim();
+    if (origin == null) {
+      showSnack(context, l10n.contactWorkerLocationRequired, error: true);
+      return;
+    }
+    if (text.isEmpty) {
+      showSnack(context, l10n.contactWorkerMessageRequired, error: true);
+      return;
+    }
+
+    setState(() => _busy = true);
+    try {
+      final filters = ref.read(workerSearchFiltersProvider);
+      final result =
+          await ref.read(workerSearchRepositoryProvider).contactWorker(
+                workerId: widget.worker.workerId,
+                latitude: origin.latitude,
+                longitude: origin.longitude,
+                radiusKm: filters.radiusKm,
+                category: filters.category,
+                message: text,
+              );
+      ref.invalidate(threadsProvider);
+      ref.invalidate(nearbyWorkersProvider);
+      if (!mounted) return;
+      final route = '/threads/${result.thread.id}';
+      final title = result.thread.jobTitle ?? l10n.chatTitle;
+      final router = GoRouter.of(context);
+      Navigator.of(context).pop();
+      await router.push(route, extra: title);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      if (e.code == 'worker_unavailable') {
+        ref.invalidate(nearbyWorkersProvider);
+        showSnack(context, l10n.contactWorkerUnavailable, error: true);
+        Navigator.of(context).pop();
+      } else {
+        showSnack(context, e.message, error: true);
+      }
+    } catch (_) {
+      if (mounted) showSnack(context, l10n.commonNetworkError, error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final name = _workerName(l10n, widget.worker);
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          4,
+          16,
+          16 + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.contactWorkerTitle(name),
+                style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                _WorkerMeta(
+                  icon: Icons.place_outlined,
+                  label: l10n.findWorkersDistance(
+                    widget.worker.distanceKm.toStringAsFixed(1),
+                  ),
+                ),
+                _WorkerMeta(
+                  icon: Icons.radio_button_checked,
+                  label: _freshnessLabel(l10n, widget.worker),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _message,
+              minLines: 3,
+              maxLines: 5,
+              maxLength: 1000,
+              textInputAction: TextInputAction.newline,
+              decoration: InputDecoration(
+                labelText: l10n.contactWorkerMessageLabel,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _busy ? null : _submit,
+                icon: _busy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.send_outlined),
+                label: Text(
+                  _busy ? l10n.contactWorkerSending : l10n.contactWorkerSend,
+                ),
               ),
             ),
           ],
@@ -946,6 +1321,17 @@ String _workerName(AppLocalizations l10n, NearbyWorker worker) {
 
 String _initial(String value) => value.substring(0, 1).toUpperCase();
 
+String _reportReasonLabel(AppLocalizations l10n, String reason) {
+  return switch (reason) {
+    'abuse' => l10n.safetyReportReasonAbuse,
+    'spam' => l10n.safetyReportReasonSpam,
+    'fraud' => l10n.safetyReportReasonFraud,
+    'off_platform' => l10n.safetyReportReasonOffPlatform,
+    'safety' => l10n.safetyReportReasonSafety,
+    _ => l10n.safetyReportReasonOther,
+  };
+}
+
 String _rateUnit(AppLocalizations l10n, String unit) {
   return unit == 'fixed' ? l10n.pricingFixed : l10n.pricingHourly;
 }
@@ -975,7 +1361,7 @@ class _StreetModePrompt extends StatelessWidget {
           ),
           trailing:
               Icon(Icons.chevron_right, color: scheme.onSecondaryContainer),
-          onTap: () => context.go('/street-mode'),
+          onTap: () => context.push('/street-mode'),
         ),
       ),
     );

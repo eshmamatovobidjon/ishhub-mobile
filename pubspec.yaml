@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.20.2
   url_launcher: ^6.3.0
   permission_handler: ^11.3.1
+  sentry_flutter: ^9.19.0
 
 dev_dependencies:
   flutter_test:

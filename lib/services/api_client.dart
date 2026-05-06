@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import '../config/constants.dart';
 import 'storage_service.dart';
 
@@ -8,10 +11,13 @@ class ApiException implements Exception {
   final int statusCode;
   final String code;
   final String message;
-  ApiException(this.statusCode, this.code, this.message);
+  final String? requestId;
+  ApiException(this.statusCode, this.code, this.message, {this.requestId});
 
   @override
-  String toString() => 'ApiException($statusCode, $code): $message';
+  String toString() => requestId == null
+      ? 'ApiException($statusCode, $code): $message'
+      : 'ApiException($statusCode, $code, requestId=$requestId): $message';
 }
 
 /// Single Dio instance with auth + error-envelope interceptor.
@@ -31,6 +37,9 @@ class ApiClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (opts, handler) async {
+          final requestId = _requestId();
+          opts.headers['X-Request-ID'] ??= requestId;
+          opts.extra['requestId'] = opts.headers['X-Request-ID'];
           final access = await _tokens.readAccess();
           if (access != null && opts.headers['Authorization'] == null) {
             opts.headers['Authorization'] = 'Bearer $access';
@@ -66,6 +75,20 @@ class ApiClient {
           }
           // Convert to ApiException for predictable surface.
           final res = err.response;
+          final requestId = _responseRequestId(err);
+          await Sentry.addBreadcrumb(
+            Breadcrumb(
+              category: 'http',
+              type: 'http',
+              level: SentryLevel.warning,
+              message:
+                  '${err.requestOptions.method} ${err.requestOptions.path}',
+              data: {
+                'status_code': res?.statusCode,
+                'request_id': requestId,
+              },
+            ),
+          );
           if (res != null && res.data is Map) {
             final envelope =
                 (res.data as Map)['error'] as Map<String, dynamic>?;
@@ -78,6 +101,7 @@ class ApiClient {
                     res.statusCode ?? 0,
                     envelope['code'] as String? ?? 'unknown',
                     envelope['message'] as String? ?? 'Request failed',
+                    requestId: requestId,
                   ),
                 ),
               );
@@ -118,4 +142,21 @@ class ApiClient {
       rethrow;
     }
   }
+}
+
+String _responseRequestId(DioException err) {
+  return err.response?.headers.value('x-request-id') ??
+      err.requestOptions.extra['requestId']?.toString() ??
+      '';
+}
+
+final Random _random = Random.secure();
+
+String _requestId() {
+  final now = DateTime.now().microsecondsSinceEpoch.toRadixString(16);
+  final suffix = List.generate(
+    4,
+    (_) => _random.nextInt(0x10000).toRadixString(16).padLeft(4, '0'),
+  ).join();
+  return 'm-$now-$suffix';
 }

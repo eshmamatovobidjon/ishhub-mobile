@@ -1,4 +1,3 @@
-import '../models/job.dart';
 import '../services/api_client.dart';
 
 /// Calls the assignment-lifecycle endpoints. Each transition optionally takes
@@ -7,36 +6,41 @@ class AssignmentsRepository {
   AssignmentsRepository(this._api);
   final ApiClient _api;
 
-  Future<Job> arrived(String assignmentId, {double? lat, double? lng}) =>
+  Future<void> arrived(String assignmentId, {double? lat, double? lng}) =>
       _action(assignmentId, 'arrived', lat: lat, lng: lng);
 
-  Future<Job> started(String assignmentId, {double? lat, double? lng}) =>
+  Future<void> started(String assignmentId, {double? lat, double? lng}) =>
       _action(assignmentId, 'started', lat: lat, lng: lng);
 
-  Future<Job> done(String assignmentId, {double? lat, double? lng}) =>
+  Future<void> done(String assignmentId, {double? lat, double? lng}) =>
       _action(assignmentId, 'done', lat: lat, lng: lng);
 
-  Future<Job> confirm(String assignmentId, {num? finalAmount}) async {
-    final r = await _api.post<Map<String, dynamic>>(
+  Future<void> confirm(String assignmentId, {num? finalAmount}) async {
+    await _api.post<Map<String, dynamic>>(
       '/assignments/$assignmentId/confirm/',
       data: {if (finalAmount != null) 'final_amount': finalAmount.toString()},
     );
-    return Job.fromJson(r.data!);
   }
 
-  Future<Job> _action(
+  Future<void> cancel(String assignmentId, {String reason = ''}) async {
+    await _api.post<Map<String, dynamic>>(
+      '/assignments/$assignmentId/cancel/',
+      data: {if (reason.isNotEmpty) 'reason': reason},
+    );
+  }
+
+  Future<void> _action(
     String assignmentId,
     String path, {
     double? lat,
     double? lng,
   }) async {
-    final r = await _api.post<Map<String, dynamic>>(
+    await _api.post<Map<String, dynamic>>(
       '/assignments/$assignmentId/$path/',
       data: {
         if (lat != null) 'latitude': lat,
         if (lng != null) 'longitude': lng,
       },
     );
-    return Job.fromJson(r.data!);
   }
 }

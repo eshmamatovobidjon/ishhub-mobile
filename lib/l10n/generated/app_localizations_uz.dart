@@ -215,6 +215,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get commonNetworkErrorRetry => 'Tarmoq xatosi. Qayta urinib ko\'ring.';
 
   @override
+  String get commonCancel => 'Bekor qilish';
+
+  @override
   String get asyncEmpty => 'Hozircha bo\'sh';
 
   @override
@@ -478,6 +481,39 @@ class AppLocalizationsUz extends AppLocalizations {
   String get findWorkersFreshUnknown => 'Mavjudlik yoqilgan';
 
   @override
+  String get contactWorkerAction => 'Ustachiga yozish';
+
+  @override
+  String contactWorkerTitle(String worker) {
+    return '$worker bilan aloqa';
+  }
+
+  @override
+  String contactWorkerDefaultMessage(String worker) {
+    return 'Salom, $worker. Sizni yaqin atrofda topdim. Ish haqida gaplashsak bo\'ladimi?';
+  }
+
+  @override
+  String get contactWorkerMessageLabel => 'Birinchi xabar';
+
+  @override
+  String get contactWorkerSend => 'Chatni boshlash';
+
+  @override
+  String get contactWorkerSending => 'Chat ochilmoqda...';
+
+  @override
+  String get contactWorkerUnavailable =>
+      'Bu ustachi hozir mavjud emas. Ro\'yxat yangilandi.';
+
+  @override
+  String get contactWorkerLocationRequired =>
+      'Ustachiga yozishdan oldin qidiruv joyini tanlang.';
+
+  @override
+  String get contactWorkerMessageRequired => 'Qisqa birinchi xabar yozing.';
+
+  @override
   String get findWorkersPostJobAction => 'Shu ustachi uchun ish e\'lon qilish';
 
   @override
@@ -602,6 +638,9 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get statusWithdrawn => 'Qaytarib olingan';
+
+  @override
+  String get statusCountered => 'Qarshi taklif yuborilgan';
 
   @override
   String get statusArrived => 'Yetib kelgan';
@@ -865,6 +904,32 @@ class AppLocalizationsUz extends AppLocalizations {
   String get jobDetailActionFailed => 'Amal bajarilmadi';
 
   @override
+  String get jobCancelAction => 'Ishni bekor qilish';
+
+  @override
+  String get jobCancelConfirmTitle => 'Bu ish bekor qilinsinmi?';
+
+  @override
+  String get jobCancelPostedBody =>
+      'Bu ishga hali ustachi tayinlanmagan. Ish bekor qilinadi va lentadan olib tashlanadi.';
+
+  @override
+  String get jobCancelAssignedBody =>
+      'Ustachi allaqachon tayinlangan. Unga xabar beriladi va ish lentaga qaytmaydi.';
+
+  @override
+  String get jobCancelReasonLabel => 'Sabab (ixtiyoriy)';
+
+  @override
+  String get jobCancelKeepAction => 'Ishni qoldirish';
+
+  @override
+  String get jobCancelConfirmAction => 'Ishni bekor qilish';
+
+  @override
+  String get jobCancelSuccess => 'Ish bekor qilindi';
+
+  @override
   String offerDurationEstimate(String hours) {
     return 'Taxmin: $hours soat';
   }
@@ -928,6 +993,35 @@ class AppLocalizationsUz extends AppLocalizations {
   String get assignmentConfirmAction => 'Tasdiqlash';
 
   @override
+  String get assignmentCancelAction => 'Tayinlovni bekor qilish';
+
+  @override
+  String get assignmentCancelConfirmTitle => 'Bu tayinlov bekor qilinsinmi?';
+
+  @override
+  String get assignmentCancelConfirmBody =>
+      'Mijozga xabar beriladi va bu ish faol ishlaringizdan olib tashlanadi.';
+
+  @override
+  String get assignmentCancelKeepAction => 'Tayinlovni qoldirish';
+
+  @override
+  String get assignmentCancelConfirmAction => 'Tayinlovni bekor qilish';
+
+  @override
+  String get assignmentCancelSuccess => 'Tayinlov bekor qilindi';
+
+  @override
+  String get assignmentCancelClientRecoveryTitle => 'Ustachi bekor qildi';
+
+  @override
+  String get assignmentCancelClientRecoveryBody =>
+      'Ishingiz yana ochildi. Yangi takliflarni kutishingiz yoki yaqin atrofdagi boshqa ustachini topishingiz mumkin.';
+
+  @override
+  String get assignmentCancelFindWorkerAction => 'Boshqa ustachi topish';
+
+  @override
   String get assignmentArrivedStamp => 'Yetib keldi';
 
   @override
@@ -963,6 +1057,189 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get chatStartHint =>
       'Suhbatni boshlang. Narx yoki vaqt haqida kelishish uchun @yordam deb yozing - AI yordam beradi.';
+
+  @override
+  String get chatAgreementAction => 'Kelishuv yaratish';
+
+  @override
+  String get chatAgreementCreateTitle => 'Kelishuv yaratish';
+
+  @override
+  String get chatAgreementSubtitle =>
+      'Ish boshlanishidan oldin narx va vazifani belgilang.';
+
+  @override
+  String get chatAgreementCardTitle => 'Ish kelishuvi';
+
+  @override
+  String get chatAgreementPrivacy =>
+      'Kelishuv qabul qilinmaguncha telefon yashirin qoladi.';
+
+  @override
+  String get chatAgreementAlreadyAssigned =>
+      'Kelishuv qabul qilindi. Ishlar bo\'limida davom eting.';
+
+  @override
+  String get chatAgreementDescriptionLabel => 'Ish hajmi';
+
+  @override
+  String get chatAgreementDescriptionHint => 'Aniq nima bajarilishi kerak?';
+
+  @override
+  String get chatAgreementDescriptionRequired => 'Ishni tasvirlang';
+
+  @override
+  String get chatAgreementNoteHint => 'masalan: To\'lov ish tugagach naqd';
+
+  @override
+  String get chatAgreementSent => 'Kelishuv yuborildi';
+
+  @override
+  String get chatAgreementSendFailed => 'Kelishuvni yuborib bo\'lmadi';
+
+  @override
+  String get chatAgreementAccepted => 'Kelishuv qabul qilindi. Ish tayinlandi.';
+
+  @override
+  String get chatAgreementDeclined => 'Kelishuv rad etildi';
+
+  @override
+  String get chatCounterAction => 'Qarshi taklif';
+
+  @override
+  String get chatCounterCreateTitle => 'Qarshi taklif';
+
+  @override
+  String get chatCounterSubtitle =>
+      'Yangilangan shartlarni shu suhbatga yuboring.';
+
+  @override
+  String get chatCounterNoteHint => 'masalan: Bugun shu narxda bajaraman';
+
+  @override
+  String get chatCounterSent => 'Qarshi taklif yuborildi';
+
+  @override
+  String get chatCounterSendFailed => 'Qarshi taklifni yuborib bo\'lmadi';
+
+  @override
+  String get chatCallAction => 'Qo\'ng\'iroq';
+
+  @override
+  String get chatContactUnlocked =>
+      'Bu qabul qilingan ish uchun qo\'ng\'iroq ochildi.';
+
+  @override
+  String get chatContactUnavailable => 'Aloqa hali mavjud emas.';
+
+  @override
+  String get chatCallFailed => 'Telefon qo\'ng\'irog\'ini ochib bo\'lmadi.';
+
+  @override
+  String get chatQuickLocation => 'Manzil';
+
+  @override
+  String get chatQuickPrice => 'Narx';
+
+  @override
+  String get chatQuickYordam => '@yordam';
+
+  @override
+  String get chatQuickLocationMessage => 'Aniq manzilni shu yerda yuboraman.';
+
+  @override
+  String get chatQuickPriceMessage =>
+      'Boshlashdan oldin narxni kelishib olamizmi?';
+
+  @override
+  String get chatQuickYordamMessage =>
+      '@yordam bu ish uchun adolatli shartlarni taklif qil';
+
+  @override
+  String get safetyMenuTooltip => 'Xavfsizlik amallari';
+
+  @override
+  String get safetyBlockAction => 'Bloklash';
+
+  @override
+  String get safetyUnblockAction => 'Blokdan chiqarish';
+
+  @override
+  String get safetyReportAction => 'Shikoyat qilish';
+
+  @override
+  String safetyBlockTitle(String name) {
+    return '$name bloklansinmi?';
+  }
+
+  @override
+  String get safetyBlockConfirm =>
+      'U sizga qayta xabar yozolmaydi yoki aloqa qila olmaydi. Mavjud chat dalil uchun ko\'rinib turadi.';
+
+  @override
+  String safetyBlocked(String name) {
+    return '$name bloklandi';
+  }
+
+  @override
+  String safetyUnblocked(String name) {
+    return '$name blokdan chiqarildi';
+  }
+
+  @override
+  String safetyBlockedComposer(String name) {
+    return 'Siz $name ni blokladingiz. Xabar yozish o\'chirilgan.';
+  }
+
+  @override
+  String safetyBlockedByThemComposer(String name) {
+    return '$name sizni blokladi. Bu chatni o\'qiy olasiz, lekin xabar yozish o\'chirilgan.';
+  }
+
+  @override
+  String safetyMutualBlockedComposer(String name) {
+    return 'Siz va $name bir-biringizni bloklagansiz. Chat ko\'rinib turadi, lekin xabar yozish o\'chirilgan.';
+  }
+
+  @override
+  String safetyReportTitle(String name) {
+    return '$name ustidan shikoyat';
+  }
+
+  @override
+  String get safetyReportSubtitle =>
+      'Shikoyatlar IshHubga xavfli, spam yoki platformadan tashqariga olib chiqish holatlarini ko\'rib chiqishga yordam beradi.';
+
+  @override
+  String get safetyReportReasonLabel => 'Sabab';
+
+  @override
+  String get safetyReportDetailsLabel => 'Tafsilotlar';
+
+  @override
+  String get safetyReportSubmit => 'Shikoyat yuborish';
+
+  @override
+  String get safetyReportSent => 'Shikoyat yuborildi';
+
+  @override
+  String get safetyReportReasonAbuse => 'Haqoratli muomala';
+
+  @override
+  String get safetyReportReasonSpam => 'Spam';
+
+  @override
+  String get safetyReportReasonFraud => 'Firibgarlik';
+
+  @override
+  String get safetyReportReasonOffPlatform =>
+      'Platformadan tashqariga o\'tishga majburlash';
+
+  @override
+  String get safetyReportReasonSafety => 'Xavfsizlik xavotiri';
+
+  @override
+  String get safetyReportReasonOther => 'Boshqa';
 
   @override
   String get streetModeTitle => 'Ko\'chada rejim';

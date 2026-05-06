@@ -17,6 +17,19 @@ class AppConstants {
     defaultValue: 'ws://10.0.2.2:8765/ws',
   );
 
+  static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
+  static const String sentryEnvironment = String.fromEnvironment(
+    'SENTRY_ENVIRONMENT',
+    defaultValue: 'local',
+  );
+  static const String sentryRelease = String.fromEnvironment('SENTRY_RELEASE');
+  static const String _sentryTracesSampleRate = String.fromEnvironment(
+    'SENTRY_TRACES_SAMPLE_RATE',
+    defaultValue: '0',
+  );
+  static final double sentryTracesSampleRate =
+      double.tryParse(_sentryTracesSampleRate) ?? 0;
+
   // Storage keys
   static const String kAccessToken = 'access_token';
   static const String kRefreshToken = 'refresh_token';

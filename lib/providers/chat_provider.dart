@@ -11,6 +11,11 @@ final threadsProvider =
   return ref.watch(chatRepositoryProvider).threads();
 });
 
+final threadContactProvider =
+    FutureProvider.autoDispose.family<ChatContactSummary, String>(
+  (ref, threadId) => ref.watch(chatRepositoryProvider).threadContact(threadId),
+);
+
 /// Live message list for a given thread. Bootstraps via REST then merges
 /// new messages from the WebSocket. Uses `keepAlive` so navigating away and
 /// back in the same session keeps the buffer; releases when the room is
@@ -32,6 +37,7 @@ class ThreadMessagesNotifier
       final initial =
           await _ref.read(chatRepositoryProvider).messages(threadId);
       state = AsyncValue.data(initial);
+      _ref.invalidate(threadsProvider);
       _connectSocket();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -49,7 +55,21 @@ class ThreadMessagesNotifier
       if (raw is! Map) return;
       final msg = ChatMessage.fromJson(raw.cast<String, dynamic>());
       _append(msg);
+      unawaited(_markReadIfIncoming(msg));
     });
+  }
+
+  Future<void> _markReadIfIncoming(ChatMessage msg) async {
+    final auth = _ref.read(authControllerProvider);
+    final myId = auth is AuthSignedIn ? auth.user.id : null;
+    if (msg.senderId == myId) return;
+    try {
+      await _ref.read(chatRepositoryProvider).markRead(threadId);
+      _ref.invalidate(threadsProvider);
+      _ref.invalidate(threadContactProvider(threadId));
+    } catch (_) {
+      // The next refresh/open will mark it read; do not disturb live chat.
+    }
   }
 
   void _append(ChatMessage msg) {
@@ -71,6 +91,8 @@ class ThreadMessagesNotifier
   Future<void> refresh() async {
     final fresh = await _ref.read(chatRepositoryProvider).messages(threadId);
     state = AsyncValue.data(fresh);
+    _ref.invalidate(threadsProvider);
+    _ref.invalidate(threadContactProvider(threadId));
   }
 
   @override

@@ -5,8 +5,10 @@ class NotificationsRepository {
   NotificationsRepository(this._api);
   final ApiClient _api;
 
-  Future<List<AppNotification>> list(
-      {bool unreadOnly = false, int limit = 100}) async {
+  Future<List<AppNotification>> list({
+    bool unreadOnly = false,
+    int limit = 100,
+  }) async {
     final r = await _api.get<List<dynamic>>(
       '/notifications/',
       query: {
@@ -34,5 +36,22 @@ class NotificationsRepository {
     final r =
         await _api.post<Map<String, dynamic>>('/notifications/mark-all-read/');
     return (r.data?['updated'] as int?) ?? 0;
+  }
+
+  Future<void> registerDevice({
+    required String platform,
+    required String pushToken,
+    String locale = 'uz',
+    String appVersion = '',
+  }) async {
+    await _api.post<Map<String, dynamic>>(
+      '/devices/',
+      data: {
+        'platform': platform,
+        'push_token': pushToken,
+        'locale': locale,
+        if (appVersion.isNotEmpty) 'app_version': appVersion,
+      },
+    );
   }
 }

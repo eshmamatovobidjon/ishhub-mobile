@@ -1,3 +1,4 @@
+import '../models/contact_worker.dart';
 import '../models/nearby_worker.dart';
 import '../services/api_client.dart';
 
@@ -29,5 +30,30 @@ class WorkerSearchRepository {
     return (r.data ?? const [])
         .map((e) => NearbyWorker.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
+  }
+
+  Future<ContactWorkerResult> contactWorker({
+    required String workerId,
+    required double latitude,
+    required double longitude,
+    required String message,
+    double radiusKm = 10,
+    String? address,
+    String? category,
+    String? skill,
+  }) async {
+    final r = await _api.post<Map<String, dynamic>>(
+      '/workers/$workerId/contact/',
+      data: {
+        'lat': latitude,
+        'lng': longitude,
+        'radius_km': radiusKm,
+        'message': message,
+        if (address != null && address.isNotEmpty) 'address': address,
+        if (category != null && category.isNotEmpty) 'category': category,
+        if (skill != null && skill.isNotEmpty) 'skill': skill,
+      },
+    );
+    return ContactWorkerResult.fromJson(r.data!);
   }
 }

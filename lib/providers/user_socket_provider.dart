@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/notification.dart';
 import '../services/user_socket.dart';
 import 'auth_provider.dart';
-import 'feed_provider.dart';
+import 'chat_provider.dart';
 import 'closeout_provider.dart';
+import 'feed_provider.dart';
+import 'notification_navigation_provider.dart';
 import 'notifications_provider.dart';
 import 'offer_provider.dart';
 
@@ -32,20 +34,24 @@ final realtimeListenerProvider = Provider<void>((ref) {
     sub = sock.events.listen((e) => _dispatch(ref, e));
   }
 
-  ref.listen<AuthState>(authControllerProvider, (prev, next) {
-    if (next is AuthSignedIn) {
-      wireEvents();
-      sock.connect();
-      // Fire an initial unread-count + bootstrap so the bell badge is
-      // correct immediately after sign-in.
-      ref.read(notificationsControllerProvider.notifier).bootstrap();
-    } else {
-      sub?.cancel();
-      sub = null;
-      sock.disconnect();
-      ref.read(notificationsControllerProvider.notifier).reset();
-    }
-  }, fireImmediately: true);
+  ref.listen<AuthState>(
+    authControllerProvider,
+    (prev, next) {
+      if (next is AuthSignedIn) {
+        wireEvents();
+        sock.connect();
+        // Fire an initial unread-count + bootstrap so the bell badge is
+        // correct immediately after sign-in.
+        ref.read(notificationsControllerProvider.notifier).bootstrap();
+      } else {
+        sub?.cancel();
+        sub = null;
+        sock.disconnect();
+        ref.read(notificationsControllerProvider.notifier).reset();
+      }
+    },
+    fireImmediately: true,
+  );
 
   ref.onDispose(() => sub?.cancel());
 });
@@ -56,9 +62,11 @@ void _dispatch(Ref ref, UserEvent e) {
       final data = e.data;
       if (data == null) return;
       try {
+        final notification = AppNotification.fromJson(data);
         ref
             .read(notificationsControllerProvider.notifier)
-            .prepend(AppNotification.fromJson(data));
+            .prepend(notification);
+        invalidateForNotificationIntent(ref, notification.intent);
       } catch (err) {
         debugPrint('notification parse failed: $err');
       }
@@ -76,6 +84,8 @@ void _dispatch(Ref ref, UserEvent e) {
         }
       } else if (kind.startsWith('assignment.') || kind.startsWith('job.')) {
         if (jobId != null) ref.invalidate(jobDetailProvider(jobId));
+        ref.invalidate(threadsProvider);
+        ref.invalidate(threadContactProvider);
         ref.invalidate(feedProvider);
         ref.invalidate(workerAssignmentsProvider('active'));
         ref.invalidate(workerAssignmentsProvider('history'));

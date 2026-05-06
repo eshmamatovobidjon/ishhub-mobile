@@ -57,6 +57,14 @@ class JobsRepository {
     return Job.fromJson(r.data!);
   }
 
+  Future<Job> cancelJob(String jobId, {String reason = ''}) async {
+    final r = await _api.post<Map<String, dynamic>>(
+      '/jobs/$jobId/cancel/',
+      data: {if (reason.isNotEmpty) 'reason': reason},
+    );
+    return Job.fromJson(r.data!);
+  }
+
   /// Jobs created by the current user (any status).
   /// `GET /jobs/?creator=me`
   Future<List<Job>> myJobs() async {

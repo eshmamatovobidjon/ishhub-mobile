@@ -472,6 +472,12 @@ abstract class AppLocalizations {
   /// **'Tarmoq xatosi. Qayta urinib ko\'ring.'**
   String get commonNetworkErrorRetry;
 
+  /// No description provided for @commonCancel.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bekor qilish'**
+  String get commonCancel;
+
   /// No description provided for @asyncEmpty.
   ///
   /// In uz, this message translates to:
@@ -922,6 +928,60 @@ abstract class AppLocalizations {
   /// **'Mavjudlik yoqilgan'**
   String get findWorkersFreshUnknown;
 
+  /// No description provided for @contactWorkerAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ustachiga yozish'**
+  String get contactWorkerAction;
+
+  /// No description provided for @contactWorkerTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'{worker} bilan aloqa'**
+  String contactWorkerTitle(String worker);
+
+  /// No description provided for @contactWorkerDefaultMessage.
+  ///
+  /// In uz, this message translates to:
+  /// **'Salom, {worker}. Sizni yaqin atrofda topdim. Ish haqida gaplashsak bo\'ladimi?'**
+  String contactWorkerDefaultMessage(String worker);
+
+  /// No description provided for @contactWorkerMessageLabel.
+  ///
+  /// In uz, this message translates to:
+  /// **'Birinchi xabar'**
+  String get contactWorkerMessageLabel;
+
+  /// No description provided for @contactWorkerSend.
+  ///
+  /// In uz, this message translates to:
+  /// **'Chatni boshlash'**
+  String get contactWorkerSend;
+
+  /// No description provided for @contactWorkerSending.
+  ///
+  /// In uz, this message translates to:
+  /// **'Chat ochilmoqda...'**
+  String get contactWorkerSending;
+
+  /// No description provided for @contactWorkerUnavailable.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bu ustachi hozir mavjud emas. Ro\'yxat yangilandi.'**
+  String get contactWorkerUnavailable;
+
+  /// No description provided for @contactWorkerLocationRequired.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ustachiga yozishdan oldin qidiruv joyini tanlang.'**
+  String get contactWorkerLocationRequired;
+
+  /// No description provided for @contactWorkerMessageRequired.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qisqa birinchi xabar yozing.'**
+  String get contactWorkerMessageRequired;
+
   /// No description provided for @findWorkersPostJobAction.
   ///
   /// In uz, this message translates to:
@@ -1155,6 +1215,12 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Qaytarib olingan'**
   String get statusWithdrawn;
+
+  /// No description provided for @statusCountered.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qarshi taklif yuborilgan'**
+  String get statusCountered;
 
   /// No description provided for @statusArrived.
   ///
@@ -1642,6 +1708,54 @@ abstract class AppLocalizations {
   /// **'Amal bajarilmadi'**
   String get jobDetailActionFailed;
 
+  /// No description provided for @jobCancelAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ishni bekor qilish'**
+  String get jobCancelAction;
+
+  /// No description provided for @jobCancelConfirmTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bu ish bekor qilinsinmi?'**
+  String get jobCancelConfirmTitle;
+
+  /// No description provided for @jobCancelPostedBody.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bu ishga hali ustachi tayinlanmagan. Ish bekor qilinadi va lentadan olib tashlanadi.'**
+  String get jobCancelPostedBody;
+
+  /// No description provided for @jobCancelAssignedBody.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ustachi allaqachon tayinlangan. Unga xabar beriladi va ish lentaga qaytmaydi.'**
+  String get jobCancelAssignedBody;
+
+  /// No description provided for @jobCancelReasonLabel.
+  ///
+  /// In uz, this message translates to:
+  /// **'Sabab (ixtiyoriy)'**
+  String get jobCancelReasonLabel;
+
+  /// No description provided for @jobCancelKeepAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ishni qoldirish'**
+  String get jobCancelKeepAction;
+
+  /// No description provided for @jobCancelConfirmAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ishni bekor qilish'**
+  String get jobCancelConfirmAction;
+
+  /// No description provided for @jobCancelSuccess.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ish bekor qilindi'**
+  String get jobCancelSuccess;
+
   /// No description provided for @offerDurationEstimate.
   ///
   /// In uz, this message translates to:
@@ -1750,6 +1864,60 @@ abstract class AppLocalizations {
   /// **'Tasdiqlash'**
   String get assignmentConfirmAction;
 
+  /// No description provided for @assignmentCancelAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tayinlovni bekor qilish'**
+  String get assignmentCancelAction;
+
+  /// No description provided for @assignmentCancelConfirmTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bu tayinlov bekor qilinsinmi?'**
+  String get assignmentCancelConfirmTitle;
+
+  /// No description provided for @assignmentCancelConfirmBody.
+  ///
+  /// In uz, this message translates to:
+  /// **'Mijozga xabar beriladi va bu ish faol ishlaringizdan olib tashlanadi.'**
+  String get assignmentCancelConfirmBody;
+
+  /// No description provided for @assignmentCancelKeepAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tayinlovni qoldirish'**
+  String get assignmentCancelKeepAction;
+
+  /// No description provided for @assignmentCancelConfirmAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tayinlovni bekor qilish'**
+  String get assignmentCancelConfirmAction;
+
+  /// No description provided for @assignmentCancelSuccess.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tayinlov bekor qilindi'**
+  String get assignmentCancelSuccess;
+
+  /// No description provided for @assignmentCancelClientRecoveryTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ustachi bekor qildi'**
+  String get assignmentCancelClientRecoveryTitle;
+
+  /// No description provided for @assignmentCancelClientRecoveryBody.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ishingiz yana ochildi. Yangi takliflarni kutishingiz yoki yaqin atrofdagi boshqa ustachini topishingiz mumkin.'**
+  String get assignmentCancelClientRecoveryBody;
+
+  /// No description provided for @assignmentCancelFindWorkerAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Boshqa ustachi topish'**
+  String get assignmentCancelFindWorkerAction;
+
   /// No description provided for @assignmentArrivedStamp.
   ///
   /// In uz, this message translates to:
@@ -1815,6 +1983,324 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Suhbatni boshlang. Narx yoki vaqt haqida kelishish uchun @yordam deb yozing - AI yordam beradi.'**
   String get chatStartHint;
+
+  /// No description provided for @chatAgreementAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuv yaratish'**
+  String get chatAgreementAction;
+
+  /// No description provided for @chatAgreementCreateTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuv yaratish'**
+  String get chatAgreementCreateTitle;
+
+  /// No description provided for @chatAgreementSubtitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ish boshlanishidan oldin narx va vazifani belgilang.'**
+  String get chatAgreementSubtitle;
+
+  /// No description provided for @chatAgreementCardTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ish kelishuvi'**
+  String get chatAgreementCardTitle;
+
+  /// No description provided for @chatAgreementPrivacy.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuv qabul qilinmaguncha telefon yashirin qoladi.'**
+  String get chatAgreementPrivacy;
+
+  /// No description provided for @chatAgreementAlreadyAssigned.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuv qabul qilindi. Ishlar bo\'limida davom eting.'**
+  String get chatAgreementAlreadyAssigned;
+
+  /// No description provided for @chatAgreementDescriptionLabel.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ish hajmi'**
+  String get chatAgreementDescriptionLabel;
+
+  /// No description provided for @chatAgreementDescriptionHint.
+  ///
+  /// In uz, this message translates to:
+  /// **'Aniq nima bajarilishi kerak?'**
+  String get chatAgreementDescriptionHint;
+
+  /// No description provided for @chatAgreementDescriptionRequired.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ishni tasvirlang'**
+  String get chatAgreementDescriptionRequired;
+
+  /// No description provided for @chatAgreementNoteHint.
+  ///
+  /// In uz, this message translates to:
+  /// **'masalan: To\'lov ish tugagach naqd'**
+  String get chatAgreementNoteHint;
+
+  /// No description provided for @chatAgreementSent.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuv yuborildi'**
+  String get chatAgreementSent;
+
+  /// No description provided for @chatAgreementSendFailed.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuvni yuborib bo\'lmadi'**
+  String get chatAgreementSendFailed;
+
+  /// No description provided for @chatAgreementAccepted.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuv qabul qilindi. Ish tayinlandi.'**
+  String get chatAgreementAccepted;
+
+  /// No description provided for @chatAgreementDeclined.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kelishuv rad etildi'**
+  String get chatAgreementDeclined;
+
+  /// No description provided for @chatCounterAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qarshi taklif'**
+  String get chatCounterAction;
+
+  /// No description provided for @chatCounterCreateTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qarshi taklif'**
+  String get chatCounterCreateTitle;
+
+  /// No description provided for @chatCounterSubtitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yangilangan shartlarni shu suhbatga yuboring.'**
+  String get chatCounterSubtitle;
+
+  /// No description provided for @chatCounterNoteHint.
+  ///
+  /// In uz, this message translates to:
+  /// **'masalan: Bugun shu narxda bajaraman'**
+  String get chatCounterNoteHint;
+
+  /// No description provided for @chatCounterSent.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qarshi taklif yuborildi'**
+  String get chatCounterSent;
+
+  /// No description provided for @chatCounterSendFailed.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qarshi taklifni yuborib bo\'lmadi'**
+  String get chatCounterSendFailed;
+
+  /// No description provided for @chatCallAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qo\'ng\'iroq'**
+  String get chatCallAction;
+
+  /// No description provided for @chatContactUnlocked.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bu qabul qilingan ish uchun qo\'ng\'iroq ochildi.'**
+  String get chatContactUnlocked;
+
+  /// No description provided for @chatContactUnavailable.
+  ///
+  /// In uz, this message translates to:
+  /// **'Aloqa hali mavjud emas.'**
+  String get chatContactUnavailable;
+
+  /// No description provided for @chatCallFailed.
+  ///
+  /// In uz, this message translates to:
+  /// **'Telefon qo\'ng\'irog\'ini ochib bo\'lmadi.'**
+  String get chatCallFailed;
+
+  /// No description provided for @chatQuickLocation.
+  ///
+  /// In uz, this message translates to:
+  /// **'Manzil'**
+  String get chatQuickLocation;
+
+  /// No description provided for @chatQuickPrice.
+  ///
+  /// In uz, this message translates to:
+  /// **'Narx'**
+  String get chatQuickPrice;
+
+  /// No description provided for @chatQuickYordam.
+  ///
+  /// In uz, this message translates to:
+  /// **'@yordam'**
+  String get chatQuickYordam;
+
+  /// No description provided for @chatQuickLocationMessage.
+  ///
+  /// In uz, this message translates to:
+  /// **'Aniq manzilni shu yerda yuboraman.'**
+  String get chatQuickLocationMessage;
+
+  /// No description provided for @chatQuickPriceMessage.
+  ///
+  /// In uz, this message translates to:
+  /// **'Boshlashdan oldin narxni kelishib olamizmi?'**
+  String get chatQuickPriceMessage;
+
+  /// No description provided for @chatQuickYordamMessage.
+  ///
+  /// In uz, this message translates to:
+  /// **'@yordam bu ish uchun adolatli shartlarni taklif qil'**
+  String get chatQuickYordamMessage;
+
+  /// No description provided for @safetyMenuTooltip.
+  ///
+  /// In uz, this message translates to:
+  /// **'Xavfsizlik amallari'**
+  String get safetyMenuTooltip;
+
+  /// No description provided for @safetyBlockAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bloklash'**
+  String get safetyBlockAction;
+
+  /// No description provided for @safetyUnblockAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Blokdan chiqarish'**
+  String get safetyUnblockAction;
+
+  /// No description provided for @safetyReportAction.
+  ///
+  /// In uz, this message translates to:
+  /// **'Shikoyat qilish'**
+  String get safetyReportAction;
+
+  /// No description provided for @safetyBlockTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'{name} bloklansinmi?'**
+  String safetyBlockTitle(String name);
+
+  /// No description provided for @safetyBlockConfirm.
+  ///
+  /// In uz, this message translates to:
+  /// **'U sizga qayta xabar yozolmaydi yoki aloqa qila olmaydi. Mavjud chat dalil uchun ko\'rinib turadi.'**
+  String get safetyBlockConfirm;
+
+  /// No description provided for @safetyBlocked.
+  ///
+  /// In uz, this message translates to:
+  /// **'{name} bloklandi'**
+  String safetyBlocked(String name);
+
+  /// No description provided for @safetyUnblocked.
+  ///
+  /// In uz, this message translates to:
+  /// **'{name} blokdan chiqarildi'**
+  String safetyUnblocked(String name);
+
+  /// No description provided for @safetyBlockedComposer.
+  ///
+  /// In uz, this message translates to:
+  /// **'Siz {name} ni blokladingiz. Xabar yozish o\'chirilgan.'**
+  String safetyBlockedComposer(String name);
+
+  /// No description provided for @safetyBlockedByThemComposer.
+  ///
+  /// In uz, this message translates to:
+  /// **'{name} sizni blokladi. Bu chatni o\'qiy olasiz, lekin xabar yozish o\'chirilgan.'**
+  String safetyBlockedByThemComposer(String name);
+
+  /// No description provided for @safetyMutualBlockedComposer.
+  ///
+  /// In uz, this message translates to:
+  /// **'Siz va {name} bir-biringizni bloklagansiz. Chat ko\'rinib turadi, lekin xabar yozish o\'chirilgan.'**
+  String safetyMutualBlockedComposer(String name);
+
+  /// No description provided for @safetyReportTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'{name} ustidan shikoyat'**
+  String safetyReportTitle(String name);
+
+  /// No description provided for @safetyReportSubtitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Shikoyatlar IshHubga xavfli, spam yoki platformadan tashqariga olib chiqish holatlarini ko\'rib chiqishga yordam beradi.'**
+  String get safetyReportSubtitle;
+
+  /// No description provided for @safetyReportReasonLabel.
+  ///
+  /// In uz, this message translates to:
+  /// **'Sabab'**
+  String get safetyReportReasonLabel;
+
+  /// No description provided for @safetyReportDetailsLabel.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tafsilotlar'**
+  String get safetyReportDetailsLabel;
+
+  /// No description provided for @safetyReportSubmit.
+  ///
+  /// In uz, this message translates to:
+  /// **'Shikoyat yuborish'**
+  String get safetyReportSubmit;
+
+  /// No description provided for @safetyReportSent.
+  ///
+  /// In uz, this message translates to:
+  /// **'Shikoyat yuborildi'**
+  String get safetyReportSent;
+
+  /// No description provided for @safetyReportReasonAbuse.
+  ///
+  /// In uz, this message translates to:
+  /// **'Haqoratli muomala'**
+  String get safetyReportReasonAbuse;
+
+  /// No description provided for @safetyReportReasonSpam.
+  ///
+  /// In uz, this message translates to:
+  /// **'Spam'**
+  String get safetyReportReasonSpam;
+
+  /// No description provided for @safetyReportReasonFraud.
+  ///
+  /// In uz, this message translates to:
+  /// **'Firibgarlik'**
+  String get safetyReportReasonFraud;
+
+  /// No description provided for @safetyReportReasonOffPlatform.
+  ///
+  /// In uz, this message translates to:
+  /// **'Platformadan tashqariga o\'tishga majburlash'**
+  String get safetyReportReasonOffPlatform;
+
+  /// No description provided for @safetyReportReasonSafety.
+  ///
+  /// In uz, this message translates to:
+  /// **'Xavfsizlik xavotiri'**
+  String get safetyReportReasonSafety;
+
+  /// No description provided for @safetyReportReasonOther.
+  ///
+  /// In uz, this message translates to:
+  /// **'Boshqa'**
+  String get safetyReportReasonOther;
 
   /// No description provided for @streetModeTitle.
   ///

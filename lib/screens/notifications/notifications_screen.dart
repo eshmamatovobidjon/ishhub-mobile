@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/notification.dart';
+import '../../providers/notification_navigation_provider.dart';
 import '../../providers/notifications_provider.dart';
 
 class NotificationsScreen extends ConsumerWidget {
@@ -14,20 +14,21 @@ class NotificationsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(notificationsControllerProvider);
-    final ctrl = ref.read(notificationsControllerProvider.notifier);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.notificationsTitle),
         actions: [
           if (state.unreadCount > 0)
             TextButton(
-              onPressed: ctrl.markAllRead,
+              onPressed: ref
+                  .read(notificationsControllerProvider.notifier)
+                  .markAllRead,
               child: Text(l10n.notificationsMarkAllRead),
             ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: ctrl.refresh,
+        onRefresh: ref.read(notificationsControllerProvider.notifier).refresh,
         child: state.loading && state.items.isEmpty
             ? const Center(child: CircularProgressIndicator())
             : state.items.isEmpty
@@ -38,11 +39,9 @@ class NotificationsScreen extends ConsumerWidget {
                     itemBuilder: (_, i) => _NotificationTile(
                       item: state.items[i],
                       onTap: () async {
-                        await ctrl.markRead(state.items[i].id);
-                        final link = state.items[i].deepLink;
-                        if (link != null && context.mounted) {
-                          await context.push(link);
-                        }
+                        await ref
+                            .read(notificationNavigationProvider)
+                            .openNotification(context, state.items[i]);
                       },
                     ),
                   ),

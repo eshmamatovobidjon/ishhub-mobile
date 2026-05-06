@@ -105,6 +105,7 @@ class JobAssignment {
   final DateTime? startedAt;
   final DateTime? doneAt;
   final DateTime? completedAt;
+  final DateTime? cancelledAt;
   final num? finalAmount;
   final Payment? payment;
   final List<Rating> ratings;
@@ -118,6 +119,7 @@ class JobAssignment {
     required this.startedAt,
     required this.doneAt,
     required this.completedAt,
+    required this.cancelledAt,
     required this.finalAmount,
     this.payment,
     this.ratings = const [],
@@ -132,6 +134,7 @@ class JobAssignment {
         startedAt: _parseDate(json['started_at']),
         doneAt: _parseDate(json['done_at']),
         completedAt: _parseDate(json['completed_at']),
+        cancelledAt: _parseDate(json['cancelled_at']),
         finalAmount: json['final_amount'] is String
             ? num.tryParse(json['final_amount'] as String)
             : json['final_amount'] as num?,

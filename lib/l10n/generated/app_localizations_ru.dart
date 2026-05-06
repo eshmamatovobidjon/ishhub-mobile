@@ -211,6 +211,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonNetworkErrorRetry => 'Ошибка сети. Попробуйте еще раз.';
 
   @override
+  String get commonCancel => 'Отмена';
+
+  @override
   String get asyncEmpty => 'Пока пусто';
 
   @override
@@ -473,6 +476,40 @@ class AppLocalizationsRu extends AppLocalizations {
   String get findWorkersFreshUnknown => 'Доступность включена';
 
   @override
+  String get contactWorkerAction => 'Написать мастеру';
+
+  @override
+  String contactWorkerTitle(String worker) {
+    return 'Связаться: $worker';
+  }
+
+  @override
+  String contactWorkerDefaultMessage(String worker) {
+    return 'Здравствуйте, $worker. Я нашел вас рядом. Можем обсудить работу?';
+  }
+
+  @override
+  String get contactWorkerMessageLabel => 'Первое сообщение';
+
+  @override
+  String get contactWorkerSend => 'Открыть чат';
+
+  @override
+  String get contactWorkerSending => 'Открываем чат...';
+
+  @override
+  String get contactWorkerUnavailable =>
+      'Этот мастер больше недоступен. Список обновлен.';
+
+  @override
+  String get contactWorkerLocationRequired =>
+      'Выберите место поиска перед сообщением мастеру.';
+
+  @override
+  String get contactWorkerMessageRequired =>
+      'Напишите короткое первое сообщение.';
+
+  @override
   String get findWorkersPostJobAction => 'Создать работу для мастера';
 
   @override
@@ -596,6 +633,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get statusWithdrawn => 'Отозвано';
+
+  @override
+  String get statusCountered => 'Встречное';
 
   @override
   String get statusArrived => 'Прибыл';
@@ -860,6 +900,32 @@ class AppLocalizationsRu extends AppLocalizations {
   String get jobDetailActionFailed => 'Действие не выполнено';
 
   @override
+  String get jobCancelAction => 'Отменить работу';
+
+  @override
+  String get jobCancelConfirmTitle => 'Отменить эту работу?';
+
+  @override
+  String get jobCancelPostedBody =>
+      'Для этой работы еще нет назначенного мастера. Она будет отменена и исчезнет из ленты.';
+
+  @override
+  String get jobCancelAssignedBody =>
+      'Мастер уже назначен. Мы уведомим его, а работа не вернется в ленту.';
+
+  @override
+  String get jobCancelReasonLabel => 'Причина (необязательно)';
+
+  @override
+  String get jobCancelKeepAction => 'Оставить работу';
+
+  @override
+  String get jobCancelConfirmAction => 'Отменить работу';
+
+  @override
+  String get jobCancelSuccess => 'Работа отменена';
+
+  @override
   String offerDurationEstimate(String hours) {
     return 'Оценка: $hours ч';
   }
@@ -923,6 +989,35 @@ class AppLocalizationsRu extends AppLocalizations {
   String get assignmentConfirmAction => 'Подтвердить';
 
   @override
+  String get assignmentCancelAction => 'Отменить назначение';
+
+  @override
+  String get assignmentCancelConfirmTitle => 'Отменить это назначение?';
+
+  @override
+  String get assignmentCancelConfirmBody =>
+      'Клиент получит уведомление, а эта работа исчезнет из ваших активных.';
+
+  @override
+  String get assignmentCancelKeepAction => 'Оставить назначение';
+
+  @override
+  String get assignmentCancelConfirmAction => 'Отменить назначение';
+
+  @override
+  String get assignmentCancelSuccess => 'Назначение отменено';
+
+  @override
+  String get assignmentCancelClientRecoveryTitle => 'Мастер отменил работу';
+
+  @override
+  String get assignmentCancelClientRecoveryBody =>
+      'Ваша работа снова открыта. Можно подождать новые предложения или найти другого мастера рядом.';
+
+  @override
+  String get assignmentCancelFindWorkerAction => 'Найти другого мастера';
+
+  @override
   String get assignmentArrivedStamp => 'Прибыл';
 
   @override
@@ -958,6 +1053,188 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get chatStartHint =>
       'Начните чат. Напишите @yordam, чтобы договориться о цене или времени с помощью AI.';
+
+  @override
+  String get chatAgreementAction => 'Создать соглашение';
+
+  @override
+  String get chatAgreementCreateTitle => 'Создать соглашение';
+
+  @override
+  String get chatAgreementSubtitle =>
+      'Зафиксируйте цену и объем до начала работы.';
+
+  @override
+  String get chatAgreementCardTitle => 'Рабочее соглашение';
+
+  @override
+  String get chatAgreementPrivacy =>
+      'Телефон скрыт, пока соглашение не принято.';
+
+  @override
+  String get chatAgreementAlreadyAssigned =>
+      'Соглашение принято. Продолжайте в разделе работ.';
+
+  @override
+  String get chatAgreementDescriptionLabel => 'Объем работы';
+
+  @override
+  String get chatAgreementDescriptionHint => 'Что именно нужно сделать?';
+
+  @override
+  String get chatAgreementDescriptionRequired => 'Опишите работу';
+
+  @override
+  String get chatAgreementNoteHint =>
+      'например: Оплата наличными после завершения';
+
+  @override
+  String get chatAgreementSent => 'Соглашение отправлено';
+
+  @override
+  String get chatAgreementSendFailed => 'Не удалось отправить соглашение';
+
+  @override
+  String get chatAgreementAccepted => 'Соглашение принято. Работа назначена.';
+
+  @override
+  String get chatAgreementDeclined => 'Соглашение отклонено';
+
+  @override
+  String get chatCounterAction => 'Встречное';
+
+  @override
+  String get chatCounterCreateTitle => 'Встречное предложение';
+
+  @override
+  String get chatCounterSubtitle => 'Отправьте обновленные условия в этот чат.';
+
+  @override
+  String get chatCounterNoteHint =>
+      'например: Могу сделать сегодня за эту цену';
+
+  @override
+  String get chatCounterSent => 'Встречное предложение отправлено';
+
+  @override
+  String get chatCounterSendFailed =>
+      'Не удалось отправить встречное предложение';
+
+  @override
+  String get chatCallAction => 'Позвонить';
+
+  @override
+  String get chatContactUnlocked => 'Звонок доступен для этой принятой работы.';
+
+  @override
+  String get chatContactUnavailable => 'Контакт пока недоступен.';
+
+  @override
+  String get chatCallFailed => 'Не удалось открыть телефонный набор.';
+
+  @override
+  String get chatQuickLocation => 'Адрес';
+
+  @override
+  String get chatQuickPrice => 'Цена';
+
+  @override
+  String get chatQuickYordam => '@yordam';
+
+  @override
+  String get chatQuickLocationMessage => 'Я могу отправить точный адрес здесь.';
+
+  @override
+  String get chatQuickPriceMessage => 'Давайте согласуем цену до начала?';
+
+  @override
+  String get chatQuickYordamMessage =>
+      '@yordam предложи честные условия для этой работы';
+
+  @override
+  String get safetyMenuTooltip => 'Действия безопасности';
+
+  @override
+  String get safetyBlockAction => 'Заблокировать';
+
+  @override
+  String get safetyUnblockAction => 'Разблокировать';
+
+  @override
+  String get safetyReportAction => 'Пожаловаться';
+
+  @override
+  String safetyBlockTitle(String name) {
+    return 'Заблокировать $name?';
+  }
+
+  @override
+  String get safetyBlockConfirm =>
+      'Этот пользователь больше не сможет писать или связываться с вами. Существующий чат останется видимым для истории.';
+
+  @override
+  String safetyBlocked(String name) {
+    return 'Пользователь $name заблокирован';
+  }
+
+  @override
+  String safetyUnblocked(String name) {
+    return 'Пользователь $name разблокирован';
+  }
+
+  @override
+  String safetyBlockedComposer(String name) {
+    return 'Вы заблокировали $name. Сообщения отключены.';
+  }
+
+  @override
+  String safetyBlockedByThemComposer(String name) {
+    return 'Пользователь $name заблокировал вас. Чат остается доступным для чтения, но сообщения отключены.';
+  }
+
+  @override
+  String safetyMutualBlockedComposer(String name) {
+    return 'Вы и $name заблокировали друг друга. Чат остается доступным для чтения, но сообщения отключены.';
+  }
+
+  @override
+  String safetyReportTitle(String name) {
+    return 'Пожаловаться на $name';
+  }
+
+  @override
+  String get safetyReportSubtitle =>
+      'Жалобы помогают IshHub проверять небезопасное поведение, спам и попытки увести общение с платформы.';
+
+  @override
+  String get safetyReportReasonLabel => 'Причина';
+
+  @override
+  String get safetyReportDetailsLabel => 'Детали';
+
+  @override
+  String get safetyReportSubmit => 'Отправить жалобу';
+
+  @override
+  String get safetyReportSent => 'Жалоба отправлена';
+
+  @override
+  String get safetyReportReasonAbuse => 'Оскорбительное поведение';
+
+  @override
+  String get safetyReportReasonSpam => 'Спам';
+
+  @override
+  String get safetyReportReasonFraud => 'Мошенничество';
+
+  @override
+  String get safetyReportReasonOffPlatform => 'Давление перейти вне платформы';
+
+  @override
+  String get safetyReportReasonSafety => 'Вопрос безопасности';
+
+  @override
+  String get safetyReportReasonOther => 'Другое';
 
   @override
   String get streetModeTitle => 'Режим на улице';

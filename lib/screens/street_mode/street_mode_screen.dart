@@ -26,36 +26,59 @@ class _StreetModeScreenState extends ConsumerState<StreetModeScreen> {
   bool _busy = false;
   bool _hydrated = false;
 
+  void _leaveStreetMode() {
+    final router = GoRouter.of(context);
+    if (router.canPop()) {
+      router.pop();
+    } else {
+      context.go('/profile');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(streetModeProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.streetModeTitle)),
-      body: AsyncStateView<WorkerProfile?>(
-        state: state,
-        onRetry: () => ref.read(streetModeProvider.notifier).refresh(),
-        data: (profile) {
-          if (profile == null) {
-            return const _ActivateNeeded();
-          }
-          if (!_hydrated) {
-            _picked = profile.lastLocation;
-            if (profile.availableRadiusM > 0) {
-              _radiusKm = profile.availableRadiusM / 1000;
+    final canPop = GoRouter.of(context).canPop();
+    return PopScope(
+      canPop: canPop,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) context.go('/profile');
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            onPressed: _leaveStreetMode,
+          ),
+          title: Text(l10n.streetModeTitle),
+        ),
+        body: AsyncStateView<WorkerProfile?>(
+          state: state,
+          onRetry: () => ref.read(streetModeProvider.notifier).refresh(),
+          data: (profile) {
+            if (profile == null) {
+              return const _ActivateNeeded();
             }
-            _hydrated = true;
-          }
-          return _Editor(
-            profile: profile,
-            picked: _picked,
-            radiusKm: _radiusKm,
-            busy: _busy,
-            onPickLocation: _useCurrentLocation,
-            onRadiusChanged: (v) => setState(() => _radiusKm = v),
-            onSubmit: ({required bool on}) => _submit(on: on),
-          );
-        },
+            if (!_hydrated) {
+              _picked = profile.lastLocation;
+              if (profile.availableRadiusM > 0) {
+                _radiusKm = profile.availableRadiusM / 1000;
+              }
+              _hydrated = true;
+            }
+            return _Editor(
+              profile: profile,
+              picked: _picked,
+              radiusKm: _radiusKm,
+              busy: _busy,
+              onPickLocation: _useCurrentLocation,
+              onRadiusChanged: (v) => setState(() => _radiusKm = v),
+              onSubmit: ({required bool on}) => _submit(on: on),
+            );
+          },
+        ),
       ),
     );
   }

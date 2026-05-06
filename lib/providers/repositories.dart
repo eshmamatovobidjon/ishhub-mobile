@@ -1,14 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/assignments_repository.dart';
 import '../data/chat_repository.dart';
-import '../data/drafts_repository.dart';
 import '../data/disputes_repository.dart';
+import '../data/drafts_repository.dart';
 import '../data/jobs_repository.dart';
 import '../data/notifications_repository.dart';
 import '../data/offers_repository.dart';
 import '../data/payments_repository.dart';
 import '../data/profile_repository.dart';
 import '../data/ratings_repository.dart';
+import '../data/safety_repository.dart';
 import '../data/skills_repository.dart';
 import '../data/worker_search_repository.dart';
 import '../services/location_service.dart';
@@ -49,6 +51,10 @@ final paymentsRepositoryProvider = Provider<PaymentsRepository>(
 
 final ratingsRepositoryProvider = Provider<RatingsRepository>(
   (ref) => RatingsRepository(ref.watch(apiClientProvider)),
+);
+
+final safetyRepositoryProvider = Provider<SafetyRepository>(
+  (ref) => SafetyRepository(ref.watch(apiClientProvider)),
 );
 
 final disputesRepositoryProvider = Provider<DisputesRepository>(

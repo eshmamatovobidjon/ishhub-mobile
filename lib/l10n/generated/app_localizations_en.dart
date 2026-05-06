@@ -210,6 +210,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonNetworkErrorRetry => 'Network error. Please try again.';
 
   @override
+  String get commonCancel => 'Cancel';
+
+  @override
   String get asyncEmpty => 'Nothing here yet';
 
   @override
@@ -468,6 +471,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findWorkersFreshUnknown => 'Availability on';
 
   @override
+  String get contactWorkerAction => 'Contact worker';
+
+  @override
+  String contactWorkerTitle(String worker) {
+    return 'Contact $worker';
+  }
+
+  @override
+  String contactWorkerDefaultMessage(String worker) {
+    return 'Hi $worker, I found you nearby. Can we discuss a job?';
+  }
+
+  @override
+  String get contactWorkerMessageLabel => 'First message';
+
+  @override
+  String get contactWorkerSend => 'Start chat';
+
+  @override
+  String get contactWorkerSending => 'Opening chat...';
+
+  @override
+  String get contactWorkerUnavailable =>
+      'This worker is no longer available. The list was refreshed.';
+
+  @override
+  String get contactWorkerLocationRequired =>
+      'Choose a search location before contacting a worker.';
+
+  @override
+  String get contactWorkerMessageRequired => 'Write a short first message.';
+
+  @override
   String get findWorkersPostJobAction => 'Post a job for this worker';
 
   @override
@@ -591,6 +627,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusWithdrawn => 'Withdrawn';
+
+  @override
+  String get statusCountered => 'Countered';
 
   @override
   String get statusArrived => 'Arrived';
@@ -854,6 +893,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jobDetailActionFailed => 'Action failed';
 
   @override
+  String get jobCancelAction => 'Cancel job';
+
+  @override
+  String get jobCancelConfirmTitle => 'Cancel this job?';
+
+  @override
+  String get jobCancelPostedBody =>
+      'This job has no assigned worker yet. It will be cancelled and removed from the feed.';
+
+  @override
+  String get jobCancelAssignedBody =>
+      'A worker is already assigned. They will be notified, and this job will not return to the feed.';
+
+  @override
+  String get jobCancelReasonLabel => 'Reason (optional)';
+
+  @override
+  String get jobCancelKeepAction => 'Keep job';
+
+  @override
+  String get jobCancelConfirmAction => 'Cancel job';
+
+  @override
+  String get jobCancelSuccess => 'Job cancelled';
+
+  @override
   String offerDurationEstimate(String hours) {
     return 'Estimate: $hours hours';
   }
@@ -917,6 +982,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assignmentConfirmAction => 'Confirm';
 
   @override
+  String get assignmentCancelAction => 'Cancel assignment';
+
+  @override
+  String get assignmentCancelConfirmTitle => 'Cancel this assignment?';
+
+  @override
+  String get assignmentCancelConfirmBody =>
+      'The client will be notified and this job will leave your active work.';
+
+  @override
+  String get assignmentCancelKeepAction => 'Keep assignment';
+
+  @override
+  String get assignmentCancelConfirmAction => 'Cancel assignment';
+
+  @override
+  String get assignmentCancelSuccess => 'Assignment cancelled';
+
+  @override
+  String get assignmentCancelClientRecoveryTitle => 'Worker cancelled';
+
+  @override
+  String get assignmentCancelClientRecoveryBody =>
+      'Your job is open again. You can wait for new offers or look for another nearby worker.';
+
+  @override
+  String get assignmentCancelFindWorkerAction => 'Find another worker';
+
+  @override
   String get assignmentArrivedStamp => 'Arrived';
 
   @override
@@ -952,6 +1046,188 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chatStartHint =>
       'Start the chat. Type @yordam to get AI help negotiating price or timing.';
+
+  @override
+  String get chatAgreementAction => 'Create agreement';
+
+  @override
+  String get chatAgreementCreateTitle => 'Create agreement';
+
+  @override
+  String get chatAgreementSubtitle =>
+      'Set the price and scope before work starts.';
+
+  @override
+  String get chatAgreementCardTitle => 'Work agreement';
+
+  @override
+  String get chatAgreementPrivacy =>
+      'Phone stays hidden until an agreement is accepted.';
+
+  @override
+  String get chatAgreementAlreadyAssigned =>
+      'Agreement accepted. Continue from Jobs.';
+
+  @override
+  String get chatAgreementDescriptionLabel => 'Scope of work';
+
+  @override
+  String get chatAgreementDescriptionHint => 'What exactly should be done?';
+
+  @override
+  String get chatAgreementDescriptionRequired => 'Describe the work';
+
+  @override
+  String get chatAgreementNoteHint => 'for example: Cash after completion';
+
+  @override
+  String get chatAgreementSent => 'Agreement sent';
+
+  @override
+  String get chatAgreementSendFailed => 'Could not send agreement';
+
+  @override
+  String get chatAgreementAccepted =>
+      'Agreement accepted. The job is now assigned.';
+
+  @override
+  String get chatAgreementDeclined => 'Agreement declined';
+
+  @override
+  String get chatCounterAction => 'Counter';
+
+  @override
+  String get chatCounterCreateTitle => 'Counter offer';
+
+  @override
+  String get chatCounterSubtitle => 'Send updated terms back into this chat.';
+
+  @override
+  String get chatCounterNoteHint =>
+      'for example: I can do it today for this price';
+
+  @override
+  String get chatCounterSent => 'Counter offer sent';
+
+  @override
+  String get chatCounterSendFailed => 'Could not send counter offer';
+
+  @override
+  String get chatCallAction => 'Call';
+
+  @override
+  String get chatContactUnlocked => 'Call is unlocked for this accepted job.';
+
+  @override
+  String get chatContactUnavailable => 'Contact is not available yet.';
+
+  @override
+  String get chatCallFailed => 'Could not open the phone dialer.';
+
+  @override
+  String get chatQuickLocation => 'Location';
+
+  @override
+  String get chatQuickPrice => 'Price';
+
+  @override
+  String get chatQuickYordam => '@yordam';
+
+  @override
+  String get chatQuickLocationMessage => 'I can share the exact location here.';
+
+  @override
+  String get chatQuickPriceMessage =>
+      'Can we agree on the price before starting?';
+
+  @override
+  String get chatQuickYordamMessage =>
+      '@yordam suggest fair terms for this job';
+
+  @override
+  String get safetyMenuTooltip => 'Safety actions';
+
+  @override
+  String get safetyBlockAction => 'Block';
+
+  @override
+  String get safetyUnblockAction => 'Unblock';
+
+  @override
+  String get safetyReportAction => 'Report';
+
+  @override
+  String safetyBlockTitle(String name) {
+    return 'Block $name?';
+  }
+
+  @override
+  String get safetyBlockConfirm =>
+      'They will not be able to message or contact you again. Existing chat stays visible for your records.';
+
+  @override
+  String safetyBlocked(String name) {
+    return 'Blocked $name';
+  }
+
+  @override
+  String safetyUnblocked(String name) {
+    return 'Unblocked $name';
+  }
+
+  @override
+  String safetyBlockedComposer(String name) {
+    return 'You blocked $name. Messaging is disabled.';
+  }
+
+  @override
+  String safetyBlockedByThemComposer(String name) {
+    return '$name blocked you. You can still read this chat, but messaging is disabled.';
+  }
+
+  @override
+  String safetyMutualBlockedComposer(String name) {
+    return 'You and $name blocked each other. This chat stays readable, but messaging is disabled.';
+  }
+
+  @override
+  String safetyReportTitle(String name) {
+    return 'Report $name';
+  }
+
+  @override
+  String get safetyReportSubtitle =>
+      'Reports help IshHub review unsafe, spammy, or off-platform behavior.';
+
+  @override
+  String get safetyReportReasonLabel => 'Reason';
+
+  @override
+  String get safetyReportDetailsLabel => 'Details';
+
+  @override
+  String get safetyReportSubmit => 'Send report';
+
+  @override
+  String get safetyReportSent => 'Report sent';
+
+  @override
+  String get safetyReportReasonAbuse => 'Abusive behavior';
+
+  @override
+  String get safetyReportReasonSpam => 'Spam';
+
+  @override
+  String get safetyReportReasonFraud => 'Fraud or scam';
+
+  @override
+  String get safetyReportReasonOffPlatform => 'Pressure to go off-platform';
+
+  @override
+  String get safetyReportReasonSafety => 'Safety concern';
+
+  @override
+  String get safetyReportReasonOther => 'Other';
 
   @override
   String get streetModeTitle => 'Street Mode';
