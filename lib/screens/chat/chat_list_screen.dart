@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../models/chat.dart';
 import '../../providers/chat_provider.dart';
 import '../../widgets/async_state_view.dart';
@@ -36,20 +37,23 @@ class _ThreadTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fmt = DateFormat('dd MMM, HH:mm');
+    final l10n = AppLocalizations.of(context);
     final last = thread.lastMessageAt;
     final others = thread.participantPhones.length > 1
         ? thread.participantPhones.sublist(1).join(', ')
         : thread.participantPhones.join(', ');
     return ListTile(
       leading: const CircleAvatar(child: Icon(Icons.chat_bubble_outline)),
-      title: Text(thread.jobTitle ?? 'Suhbat'),
+      title: Text(thread.jobTitle ?? l10n.chatTitle),
       subtitle: Text(others, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Text(
         last != null ? fmt.format(last.toLocal()) : '',
         style: Theme.of(context).textTheme.bodySmall,
       ),
-      onTap: () => context.push('/threads/${thread.id}',
-          extra: thread.jobTitle ?? 'Suhbat'),
+      onTap: () => context.push(
+        '/threads/${thread.id}',
+        extra: thread.jobTitle ?? l10n.chatTitle,
+      ),
     );
   }
 }
@@ -58,6 +62,7 @@ class _EmptyChats extends StatelessWidget {
   const _EmptyChats();
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -67,8 +72,8 @@ class _EmptyChats extends StatelessWidget {
             Icon(Icons.forum_outlined,
                 size: 56, color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: 12),
-            const Text(
-              'Hozircha suhbatlar yo\u02bcq.\nTaklif yuborgandan so\u02bcng suhbatlar shu yerda paydo bo\u02bcladi.',
+            Text(
+              l10n.chatEmpty,
               textAlign: TextAlign.center,
             ),
           ],

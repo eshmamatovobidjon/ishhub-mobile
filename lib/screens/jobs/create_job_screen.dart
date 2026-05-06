@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../models/geo.dart';
 import '../../providers/repositories.dart';
 import '../../services/api_client.dart';
@@ -42,7 +43,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       if (res.status == LocationStatus.ok) {
         setState(() => _location = res.point);
       } else {
-        showSnack(context, 'Joylashuvni olib bo\u02bclmadi', error: true);
+        showSnack(context, AppLocalizations.of(context).createJobLocationFailed,
+            error: true);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -51,7 +53,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
   Future<void> _addPhoto() async {
     if (_photos.length >= 6) {
-      showSnack(context, 'Maksimum 6 ta rasm', error: true);
+      showSnack(context, AppLocalizations.of(context).createJobMaxPhotos,
+          error: true);
       return;
     }
     final picker = ImagePicker();
@@ -73,7 +76,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
     } catch (_) {
-      if (mounted) showSnack(context, 'Yuklab bo\u02bclmadi', error: true);
+      if (mounted) {
+        showSnack(context, AppLocalizations.of(context).createJobUploadFailed,
+            error: true);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -90,11 +96,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   Future<void> _submit() async {
     final text = _textCtrl.text.trim();
     if (text.isEmpty && _photos.isEmpty) {
-      showSnack(context, 'Matn yoki kamida 1 ta rasm kiriting', error: true);
+      showSnack(context, AppLocalizations.of(context).createJobInputRequired,
+          error: true);
       return;
     }
     if (_location == null) {
-      showSnack(context, 'Joylashuvni belgilang', error: true);
+      showSnack(context, AppLocalizations.of(context).createJobLocationRequired,
+          error: true);
       return;
     }
     setState(() => _busy = true);
@@ -111,7 +119,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
     } catch (_) {
-      if (mounted) showSnack(context, 'Tarmoq xatosi', error: true);
+      if (mounted) {
+        showSnack(context, AppLocalizations.of(context).commonNetworkError,
+            error: true);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -119,16 +130,17 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Yangi ish')),
+      appBar: AppBar(title: Text(l10n.createJobTitle)),
       body: AbsorbPointer(
         absorbing: _busy,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             Text(
-              'Tasvirlab bering, AI tafsilotlarni to\u02bcldiradi',
+              l10n.createJobIntro,
               style: theme.textTheme.titleSmall,
             ),
             const SizedBox(height: 12),
@@ -136,22 +148,23 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               controller: _textCtrl,
               maxLines: 5,
               maxLength: 4000,
-              decoration: const InputDecoration(
-                labelText: 'Ish haqida',
-                hintText: 'masalan: Vannada kran oqib turibdi, ertaga keling',
+              decoration: InputDecoration(
+                labelText: l10n.createJobBodyLabel,
+                hintText: l10n.createJobBodyHint,
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _addressCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Manzil (ixtiyoriy)',
+              decoration: InputDecoration(
+                labelText: l10n.createJobAddressLabel,
               ),
             ),
             const SizedBox(height: 16),
-            _LocationCard(point: _location, onTap: _busy ? null : _pickLocation),
+            _LocationCard(
+                point: _location, onTap: _busy ? null : _pickLocation),
             const SizedBox(height: 16),
-            Text('Rasmlar (${_photos.length}/6)',
+            Text(l10n.createJobPhotosCount(_photos.length),
                 style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
             _PhotosStrip(
@@ -160,16 +173,19 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               onRemove: (i) => setState(() => _photos.removeAt(i)),
             ),
             const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _busy ? null : _submit,
-              icon: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.auto_awesome),
-              label: const Text('AI bilan tahlil qilish'),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _busy ? null : _submit,
+                icon: _busy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.auto_awesome),
+                label: Text(l10n.createJobAnalyze),
+              ),
             ),
           ],
         ),
@@ -185,10 +201,13 @@ class _LocationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: ListTile(
         leading: const Icon(Icons.place_outlined),
-        title: Text(point == null ? 'Joylashuvni belgilang' : 'Joylashuv tanlandi'),
+        title: Text(point == null
+            ? l10n.createJobLocationSelect
+            : l10n.createJobLocationSelected),
         subtitle: point != null
             ? Text(
                 '${point!.latitude.toStringAsFixed(5)}, '
@@ -247,8 +266,8 @@ class _PhotosStrip extends StatelessWidget {
                         child: IconButton.filledTonal(
                           icon: const Icon(Icons.close, size: 16),
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                              minWidth: 28, minHeight: 28),
+                          constraints:
+                              const BoxConstraints(minWidth: 28, minHeight: 28),
                           onPressed: () => onRemove(e.key),
                         ),
                       ),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/auth_provider.dart';
-import '../../services/api_client.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Right after first OTP verification the user has neither flag set.
 /// Pick client / worker / both → posts to /profile/me/ to set role flags.
@@ -14,34 +13,11 @@ class RolePickerScreen extends ConsumerStatefulWidget {
 }
 
 class _RolePickerScreenState extends ConsumerState<RolePickerScreen> {
-  bool _busy = false;
-  String? _error;
-
-  Future<void> _activateWorker() async {
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      final api = ref.read(apiClientProvider);
-      // Minimal activation; full bio + skills + rate form comes in next slice.
-      await api.post<dynamic>('/users/me/activate-worker/', data: {});
-      final user = await ref.read(authServiceProvider).me();
-      ref.read(authControllerProvider.notifier).setUser(user);
-      if (mounted) context.go('/feed');
-    } on ApiException catch (e) {
-      setState(() => _error = e.message);
-    } catch (_) {
-      setState(() => _error = 'Tarmoq xatosi');
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('IshHub')),
+      appBar: AppBar(title: Text(l10n.appName)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -49,27 +25,25 @@ class _RolePickerScreenState extends ConsumerState<RolePickerScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Ustachi profilini ochish',
+                l10n.profileActivateWorker,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Bu sizga ish topish va takliflar yuborish imkonini beradi.',
-              ),
+              Text(l10n.rolePickerDescription),
               const SizedBox(height: 24),
               _RoleCard(
-                title: 'Ustachi sifatida ishlayman',
-                subtitle: 'Ishlarni topish uchun ustachi profilini oching',
-                icon: Icons.handyman_outlined,
-                onTap: _busy ? null : _activateWorker,
+                title: l10n.rolePickerClientTitle,
+                subtitle: l10n.rolePickerClientSubtitle,
+                icon: Icons.add_business_outlined,
+                onTap: () => context.go('/feed'),
               ),
-              if (_error != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ],
+              const SizedBox(height: 12),
+              _RoleCard(
+                title: l10n.rolePickerWorkerTitle,
+                subtitle: l10n.rolePickerWorkerSubtitle,
+                icon: Icons.handyman_outlined,
+                onTap: () => context.go('/worker-setup'),
+              ),
             ],
           ),
         ),

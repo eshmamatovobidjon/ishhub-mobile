@@ -20,6 +20,8 @@ fi
 
 echo "==> using device $DEVICE"
 adb -s "$DEVICE" reverse tcp:${PORT} tcp:${PORT} >/dev/null
+# MinIO (S3-compatible) for direct media uploads.
+adb -s "$DEVICE" reverse tcp:9000 tcp:9000 >/dev/null
 
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"

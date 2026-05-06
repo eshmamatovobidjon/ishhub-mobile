@@ -68,6 +68,32 @@ class AuthController extends StateNotifier<AuthState> {
     state = AuthSignedIn(user);
   }
 
+  Future<void> updateProfile({
+    String? name,
+    String? avatarUrl,
+    String? language,
+    String? city,
+    String? district,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final user = await _ref.read(authServiceProvider).updateMe(
+          name: name,
+          avatarUrl: avatarUrl,
+          language: language,
+          city: city,
+          district: district,
+          latitude: latitude,
+          longitude: longitude,
+        );
+    state = AuthSignedIn(user);
+  }
+
+  Future<void> refreshUser() async {
+    final user = await _ref.read(authServiceProvider).me();
+    state = AuthSignedIn(user);
+  }
+
   Future<void> signOut() async {
     await _ref.read(authServiceProvider).signOut();
     state = const AuthSignedOut();

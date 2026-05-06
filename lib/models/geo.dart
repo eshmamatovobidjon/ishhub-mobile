@@ -9,5 +9,6 @@ class GeoPoint {
         longitude: (json['longitude'] as num).toDouble(),
       );
 
-  Map<String, dynamic> toJson() => {'latitude': latitude, 'longitude': longitude};
+  Map<String, dynamic> toJson() =>
+      {'latitude': latitude, 'longitude': longitude};
 }

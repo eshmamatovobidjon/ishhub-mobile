@@ -26,7 +26,7 @@ class WorkerProfile {
   factory WorkerProfile.fromJson(Map<String, dynamic> json) => WorkerProfile(
         id: json['id'] as String,
         bio: json['bio'] as String?,
-        defaultRate: json['default_rate'] as num?,
+        defaultRate: _num(json['default_rate']),
         defaultRateUnit: json['default_rate_unit'] as String? ?? 'hourly',
         availableNow: json['available_now'] as bool? ?? false,
         availableRadiusM: (json['available_radius_m'] as num?)?.toInt() ?? 5000,
@@ -40,3 +40,9 @@ class WorkerProfile {
 
 DateTime? _date(Object? v) =>
     v is String && v.isNotEmpty ? DateTime.tryParse(v) : null;
+
+num? _num(Object? v) {
+  if (v is num) return v;
+  if (v is String && v.isNotEmpty) return num.tryParse(v);
+  return null;
+}

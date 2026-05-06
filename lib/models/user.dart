@@ -1,3 +1,5 @@
+import 'geo.dart';
+
 class RoleFlags {
   final bool isClient;
   final bool isWorker;
@@ -27,6 +29,7 @@ class AppUser {
   final String? language;
   final String? city;
   final String? district;
+  final GeoPoint? location;
   final RoleFlags roles;
 
   const AppUser({
@@ -37,6 +40,7 @@ class AppUser {
     this.language,
     this.city,
     this.district,
+    this.location,
     this.roles = const RoleFlags(),
   });
 
@@ -48,6 +52,9 @@ class AppUser {
         language: json['language'] as String?,
         city: json['city'] as String?,
         district: json['district'] as String?,
+        location: json['location'] is Map<String, dynamic>
+            ? GeoPoint.fromJson(json['location'] as Map<String, dynamic>)
+            : null,
         roles: RoleFlags.fromJson(json['roles'] as Map<String, dynamic>?),
       );
 }

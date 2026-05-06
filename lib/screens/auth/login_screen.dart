@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_client.dart';
 
@@ -24,9 +25,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
     final phone = _phoneCtrl.text.trim();
     if (phone.length < 10) {
-      setState(() => _error = 'Telefon raqamingizni kiriting');
+      setState(() => _error = l10n.authPhoneRequired);
       return;
     }
     setState(() {
@@ -40,7 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (e) {
-      setState(() => _error = 'Tarmoq xatosi. Qayta urinib ko\u02bcring.');
+      setState(() => _error = l10n.commonNetworkErrorRetry);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -48,6 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -57,12 +60,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               const SizedBox(height: 48),
               Text(
-                'IshHub\u02bcga xush kelibsiz',
+                l10n.authWelcomeTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                'Kirish uchun telefon raqamingizni kiriting',
+                l10n.authWelcomeSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
@@ -73,9 +76,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
                   LengthLimitingTextInputFormatter(13),
                 ],
-                decoration: const InputDecoration(
-                  labelText: 'Telefon',
-                  hintText: '+998901234567',
+                decoration: InputDecoration(
+                  labelText: l10n.authPhoneLabel,
+                  hintText: l10n.authPhoneHint,
                 ),
               ),
               if (_error != null) ...[
@@ -96,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Kodni yuborish'),
+                    : Text(l10n.authSendCode),
               ),
             ],
           ),

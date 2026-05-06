@@ -1,0 +1,64 @@
+appId: ${APP_ID}
+name: 03 - Worker Feed, Map, Street Mode
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to IshHub"
+- tapOn: "Phone"
+- eraseText
+- inputText: ${WORKER_PHONE}
+- tapOn: "Send code"
+- assertVisible: "Verification code"
+- tapOn: "• • • • • •"
+- inputText: ${OTP_CODE}
+- tapOn: "Verify"
+- assertVisible: "Profile setup"
+- tapOn: "Full name"
+- inputText: "Maestro Feed Worker"
+- tapOn: "City"
+- eraseText
+- inputText: "Toshkent"
+- tapOn: "District or neighborhood"
+- inputText: "Chilonzor"
+- hideKeyboard
+- tapOn: "Continue"
+- assertVisible:
+    text: "Become a worker|I work as a worker"
+- tapOn:
+    text: "Become a worker|I work as a worker"
+- assertVisible: "Worker setup"
+- tapOn: "Search skills"
+- inputText: "repair"
+- tapOn: "Shoe repair"
+- hideKeyboard
+- swipe:
+    direction: UP
+- tapOn: "Bio"
+- inputText: "Maestro feed worker for Street Mode checks."
+- tapOn: "Default rate (UZS)"
+- inputText: "75000"
+- hideKeyboard
+- swipe:
+    direction: UP
+- tapOn: "Open worker profile"
+- assertVisible: "Feed"
+- tapOn:
+    text: "Map"
+    optional: true
+- assertVisible:
+    text: "List|Feed"
+    optional: true
+- tapOn:
+    point: "86%,91%"
+- assertVisible: "Profile"
+- tapOn:
+    point: "88%,67%"
+- assertVisible: "Street Mode"
+- tapOn:
+    text: "Use current location|Get location"
+    optional: true
+- tapOn:
+    text: "Turn Street Mode on"
+    optional: true
+- assertVisible:
+    text: "Available now|Street Mode|Availability is off"

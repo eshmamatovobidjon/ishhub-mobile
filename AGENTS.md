@@ -1,8 +1,11 @@
 # ishhub-mobile — Agent Guide
 
-Flutter mobile client for IshHub. Currently a scaffold — the production
-build is **Phase 9** in the
-[implementation roadmap](../ishhub-docs/docs/implementation-roadmap.md).
+Flutter mobile client for IshHub. **Phase 9 is complete for the MVP scope**:
+OTP/profile setup, worker setup, job posting, Feed, offers/applicants, assigned
+Jobs, chat, lifecycle, record/confirm payments, ratings, disputes,
+notifications, Street Mode settings, and Profile trust/availability are
+implemented. Client nearby-worker search, job edit, richer history/earnings,
+blocking/reporting, and UX polish are later product passes.
 
 ## Stack
 
@@ -36,6 +39,16 @@ as the contract. Errors come back as
 `{"error": {"code": "snake_case", "message": "..."}}` with proper HTTP
 status — surface `error.message` to users.
 
+Important current contracts:
+- Worker Feed is discovery-only. Assigned work belongs in Jobs via
+  `/assignments/me/`.
+- Feed items include `distance_known`; when false, show fallback copy, not a
+  fabricated distance.
+- Street Mode uses `PUT /users/me/street-mode/` with `available_now`, optional
+  `available_radius_m`, and paired coordinates when turning on.
+- Worker activation can include skills, bio, default rate, location, radius,
+  and initial availability, but GPS permission denial must not block setup.
+
 ## Realtime
 
 Chat uses WebSocket at `ws://<host>/ws/threads/<thread_id>/?token=<jwt>`.
@@ -52,4 +65,14 @@ JWT goes in the **query string**, not headers (see
 ## Testing
 
 - Widget tests for screens with logic.
-- Maestro flows under `.maestro/` (one per Phase 9 acceptance scenario; see roadmap).
+- Manual acceptance checks for changed core flows.
+
+Before handoff, run from `ishhub-mobile/`:
+
+```bash
+flutter gen-l10n
+dart format lib test
+flutter test
+./scripts/check-no-hardcoded-ui.sh
+flutter analyze --no-fatal-infos --no-fatal-warnings
+```

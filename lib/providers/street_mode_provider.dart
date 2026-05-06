@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/worker_profile.dart';
+import 'feed_provider.dart';
 import 'repositories.dart';
 
 /// Loads the current user's worker profile lazily; null when worker role inactive.
@@ -39,15 +40,16 @@ class StreetModeController extends StateNotifier<AsyncValue<WorkerProfile?>> {
             longitude: longitude,
           );
       state = AsyncValue.data(p);
-      // invalidate the cached profile so other consumers re-read
       _ref.invalidate(workerProfileProvider);
+      _ref.invalidate(feedProvider);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 }
 
-final streetModeProvider = StateNotifierProvider<StreetModeController,
-    AsyncValue<WorkerProfile?>>((ref) {
+final streetModeProvider =
+    StateNotifierProvider<StreetModeController, AsyncValue<WorkerProfile?>>(
+        (ref) {
   return StreetModeController(ref);
 });

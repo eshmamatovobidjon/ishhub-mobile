@@ -54,8 +54,6 @@ flutter analyze
 dart format .
 ```
 
----
-
 ## Branch Strategy
 
 - `main` — production-ready code

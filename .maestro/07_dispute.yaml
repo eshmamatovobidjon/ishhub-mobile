@@ -1,0 +1,33 @@
+appId: ${APP_ID}
+name: 07 - Open And View Dispute
+tags:
+    - requires-seed
+---
+- launchApp:
+        clearState: true
+- assertVisible: "Welcome to IshHub"
+- tapOn: "Phone"
+- eraseText
+- inputText: ${CLIENT_PHONE}
+- tapOn: "Send code"
+- assertVisible: "Verification code"
+- tapOn: "• • • • • •"
+- inputText: ${OTP_CODE}
+- tapOn: "Verify"
+- tapOn:
+    point: "37%,91%"
+- assertVisible:
+    text: "Work hub|My jobs"
+- tapOn: "Maestro Phase 9 Dispute Job"
+- assertVisible:
+    text: "Job details|Maestro Phase 9 Dispute Job"
+- swipe:
+    direction: UP
+- tapOn: "Report issue"
+- assertVisible: "Open dispute"
+- tapOn: "Details"
+- inputText: "Maestro dispute details for the Phase 9 acceptance flow."
+- hideKeyboard
+- tapOn: "Open dispute"
+- assertVisible:
+    text: "Dispute opened|Dispute|Open dispute|Job details"

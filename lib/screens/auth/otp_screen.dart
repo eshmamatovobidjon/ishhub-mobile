@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_client.dart';
 
@@ -25,9 +26,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   Future<void> _verify() async {
+    final l10n = AppLocalizations.of(context);
     final code = _codeCtrl.text.trim();
     if (code.length < 4) {
-      setState(() => _error = 'Kodni to\u02bcliq kiriting');
+      setState(() => _error = l10n.authCodeRequired);
       return;
     }
     setState(() {
@@ -42,7 +44,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (_) {
-      setState(() => _error = 'Tarmoq xatosi');
+      setState(() => _error = l10n.commonNetworkError);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -52,8 +54,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     try {
       await ref.read(authControllerProvider.notifier).sendOtp(widget.phone);
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kod qayta yuborildi')),
+          SnackBar(content: Text(l10n.authCodeResent)),
         );
       }
     } on ApiException catch (e) {
@@ -63,6 +66,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -77,12 +81,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Tasdiqlash kodi',
+                l10n.authOtpTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                '${widget.phone} raqamiga yuborildi',
+                l10n.authOtpSentTo(widget.phone),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
@@ -95,8 +99,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(6),
                 ],
-                decoration: const InputDecoration(
-                  hintText: '\u2022 \u2022 \u2022 \u2022 \u2022 \u2022',
+                decoration: InputDecoration(
+                  hintText: l10n.authOtpHint,
                 ),
                 onSubmitted: (_) => _verify(),
               ),
@@ -104,8 +108,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 const SizedBox(height: 12),
                 Text(
                   _error!,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.error),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ],
               const SizedBox(height: 24),
@@ -117,12 +120,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Tasdiqlash'),
+                    : Text(l10n.authVerify),
               ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: _busy ? null : _resend,
-                child: const Text('Kodni qayta yuborish'),
+                child: Text(l10n.authResendCode),
               ),
             ],
           ),

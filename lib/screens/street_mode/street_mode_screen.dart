@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../models/geo.dart';
 import '../../models/worker_profile.dart';
 import '../../providers/repositories.dart';
@@ -26,18 +28,16 @@ class _StreetModeScreenState extends ConsumerState<StreetModeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(streetModeProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Ko\u2018chada rejim')),
+      appBar: AppBar(title: Text(l10n.streetModeTitle)),
       body: AsyncStateView<WorkerProfile?>(
         state: state,
         onRetry: () => ref.read(streetModeProvider.notifier).refresh(),
         data: (profile) {
           if (profile == null) {
-            return _ActivateNeeded(
-              onActivated: () =>
-                  ref.read(streetModeProvider.notifier).refresh(),
-            );
+            return const _ActivateNeeded();
           }
           if (!_hydrated) {
             _picked = profile.lastLocation;
@@ -65,18 +65,19 @@ class _StreetModeScreenState extends ConsumerState<StreetModeScreen> {
     try {
       final res = await ref.read(locationServiceProvider).currentPosition();
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       switch (res.status) {
         case LocationStatus.ok:
           setState(() => _picked = res.point);
           break;
         case LocationStatus.denied:
-          showSnack(context, 'Joylashuv ruxsati berilmadi', error: true);
+          showSnack(context, l10n.streetPermissionDenied, error: true);
           break;
         case LocationStatus.deniedForever:
-          showSnack(context, 'Sozlamalardan ruxsat bering', error: true);
+          showSnack(context, l10n.streetPermissionSettings, error: true);
           break;
         case LocationStatus.serviceDisabled:
-          showSnack(context, 'Joylashuv xizmati o\u2018chirilgan', error: true);
+          showSnack(context, l10n.streetServiceDisabled, error: true);
           break;
       }
     } finally {
@@ -86,7 +87,8 @@ class _StreetModeScreenState extends ConsumerState<StreetModeScreen> {
 
   Future<void> _submit({required bool on}) async {
     if (on && _picked == null) {
-      showSnack(context, 'Avval joylashuvni tanlang', error: true);
+      showSnack(context, AppLocalizations.of(context).streetLocationRequired,
+          error: true);
       return;
     }
     setState(() => _busy = true);
@@ -98,12 +100,15 @@ class _StreetModeScreenState extends ConsumerState<StreetModeScreen> {
             longitude: _picked?.longitude,
           );
       if (!mounted) return;
-      showSnack(context,
-          on ? 'Ko\u2018chada rejim yoqildi' : 'Rejim o\u2018chirildi');
+      final l10n = AppLocalizations.of(context);
+      showSnack(context, on ? l10n.streetEnabled : l10n.streetDisabled);
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
     } catch (_) {
-      if (mounted) showSnack(context, 'Tarmoq xatosi', error: true);
+      if (mounted) {
+        showSnack(context, AppLocalizations.of(context).commonNetworkError,
+            error: true);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -131,6 +136,7 @@ class _Editor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final center = picked != null
         ? LatLng(picked!.latitude, picked!.longitude)
         : const LatLng(41.3111, 69.2797); // Tashkent fallback
@@ -138,7 +144,7 @@ class _Editor extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _StatusBanner(active: profile.availableNow),
+        _StatusBanner(profile: profile, radiusKm: radiusKm),
         const SizedBox(height: 16),
         SizedBox(
           height: 240,
@@ -149,8 +155,7 @@ class _Editor extends StatelessWidget {
               options: MapOptions(initialCenter: center, initialZoom: 13),
               children: [
                 TileLayer(
-                  urlTemplate:
-                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'uz.ishhub.app',
                 ),
                 if (picked != null)
@@ -163,7 +168,7 @@ class _Editor extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.15),
+                            .withValues(alpha: 0.15),
                         borderStrokeWidth: 1.5,
                         borderColor: Theme.of(context).colorScheme.primary,
                       ),
@@ -189,10 +194,10 @@ class _Editor extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: busy ? null : onPickLocation,
           icon: const Icon(Icons.gps_fixed),
-          label: const Text('Hozirgi joylashuvni olish'),
+          label: Text(l10n.streetGetLocation),
         ),
         const SizedBox(height: 16),
-        Text('Qidiruv radiusi: ${radiusKm.toStringAsFixed(1)} km'),
+        Text(l10n.streetSearchRadius(radiusKm.toStringAsFixed(1))),
         Slider(
           value: radiusKm,
           min: 0.5,
@@ -201,29 +206,34 @@ class _Editor extends StatelessWidget {
           onChanged: busy ? null : onRadiusChanged,
         ),
         const SizedBox(height: 16),
-        if (profile.availableNow)
-          FilledButton.tonalIcon(
-            onPressed: busy ? null : () => onSubmit(on: false),
-            icon: const Icon(Icons.power_settings_new),
-            label: const Text('Rejimni o\u2018chirish'),
-          )
-        else
-          FilledButton.icon(
-            onPressed: busy ? null : () => onSubmit(on: true),
-            icon: const Icon(Icons.directions_walk),
-            label: const Text('Ko\u2018chada rejimni yoqish'),
-          ),
+        SizedBox(
+          width: double.infinity,
+          child: profile.availableNow
+              ? FilledButton.tonalIcon(
+                  onPressed: busy ? null : () => onSubmit(on: false),
+                  icon: const Icon(Icons.power_settings_new),
+                  label: Text(l10n.streetTurnOff),
+                )
+              : FilledButton.icon(
+                  onPressed: busy ? null : () => onSubmit(on: true),
+                  icon: const Icon(Icons.directions_walk),
+                  label: Text(l10n.streetTurnOn),
+                ),
+        ),
       ],
     );
   }
 }
 
 class _StatusBanner extends StatelessWidget {
-  final bool active;
-  const _StatusBanner({required this.active});
+  final WorkerProfile profile;
+  final double radiusKm;
+  const _StatusBanner({required this.profile, required this.radiusKm});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final active = profile.availableNow;
     final color = active
         ? Theme.of(context).colorScheme.primaryContainer
         : Theme.of(context).colorScheme.surfaceContainerHighest;
@@ -238,24 +248,51 @@ class _StatusBanner extends StatelessWidget {
           Icon(active ? Icons.radio_button_checked : Icons.radio_button_off),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              active
-                  ? 'Hozir mijozlar sizni topa oladi'
-                  : 'Rejim o\u2018chirilgan',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(active
+                    ? l10n.streetActiveStatus
+                    : l10n.streetInactiveStatus),
+                const SizedBox(height: 2),
+                Text(
+                  profile.lastLocation == null
+                      ? l10n.streetNoSavedLocation
+                      : l10n.streetSavedLocation(radiusKm.toStringAsFixed(1)),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (profile.lastLocationAt != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.streetLastUpdated(
+                        _relativeTime(l10n, profile.lastLocationAt!)),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
+  String _relativeTime(AppLocalizations l10n, DateTime value) {
+    final diff = DateTime.now().difference(value);
+    if (diff.inMinutes < 1) return l10n.timeNow;
+    if (diff.inMinutes < 60) return l10n.timeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.timeDaysAgo(diff.inDays);
+    return l10n.timeWeeksAgo((diff.inDays / 7).floor());
+  }
 }
 
 class _ActivateNeeded extends ConsumerWidget {
-  final VoidCallback onActivated;
-  const _ActivateNeeded({required this.onActivated});
+  const _ActivateNeeded();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -264,25 +301,15 @@ class _ActivateNeeded extends ConsumerWidget {
           children: [
             const Icon(Icons.handyman_outlined, size: 56),
             const SizedBox(height: 12),
-            const Text(
-              'Bu funksiya uchun ustachi profilini oching',
+            Text(
+              l10n.streetActivateWorkerNeeded,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             FilledButton(
-              onPressed: () async {
-                try {
-                  await ref
-                      .read(profileRepositoryProvider)
-                      .activateWorker();
-                  onActivated();
-                } on ApiException catch (e) {
-                  if (context.mounted) {
-                    showSnack(context, e.message, error: true);
-                  }
-                }
-              },
-              child: const Text('Ochish'),
+              onPressed: () =>
+                  context.push('/worker-setup?returnTo=/street-mode'),
+              child: Text(l10n.streetActivateWorker),
             ),
           ],
         ),

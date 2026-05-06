@@ -39,3 +39,12 @@ final jobDetailProvider =
     FutureProvider.autoDispose.family<Job, String>((ref, id) async {
   return ref.watch(jobsRepositoryProvider).jobDetail(id);
 });
+
+final myJobsProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
+  return ref.watch(jobsRepositoryProvider).myJobs();
+});
+
+final workerAssignmentsProvider = FutureProvider.autoDispose
+    .family<List<WorkerAssignment>, String>((ref, scope) async {
+  return ref.watch(jobsRepositoryProvider).myAssignments(scope: scope);
+});

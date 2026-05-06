@@ -56,4 +56,31 @@ class JobsRepository {
     final r = await _api.get<Map<String, dynamic>>('/jobs/$jobId/');
     return Job.fromJson(r.data!);
   }
+
+  /// Jobs created by the current user (any status).
+  /// `GET /jobs/?creator=me`
+  Future<List<Job>> myJobs() async {
+    final r = await _api.get<dynamic>('/jobs/', query: {'creator': 'me'});
+    final raw = r.data;
+    // The endpoint is paginated; accept both shapes.
+    final List items = raw is Map<String, dynamic>
+        ? (raw['results'] as List? ?? const [])
+        : (raw as List? ?? const []);
+    return items
+        .map((e) => Job.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+
+  /// Jobs assigned to the current worker.
+  /// `GET /assignments/me/?scope=active|history|all`
+  Future<List<WorkerAssignment>> myAssignments(
+      {String scope = 'active'}) async {
+    final r = await _api.get<List<dynamic>>(
+      '/assignments/me/',
+      query: {'scope': scope},
+    );
+    return (r.data ?? const [])
+        .map((e) => WorkerAssignment.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false);
+  }
 }

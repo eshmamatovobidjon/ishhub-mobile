@@ -5,7 +5,8 @@ import 'repositories.dart';
 
 /// Polls a draft until status leaves processing (or 30 attempts).
 class DraftPollNotifier extends StateNotifier<AsyncValue<JobDraft>> {
-  DraftPollNotifier(this._ref, this.draftId) : super(const AsyncValue.loading()) {
+  DraftPollNotifier(this._ref, this.draftId)
+      : super(const AsyncValue.loading()) {
     _start();
   }
 

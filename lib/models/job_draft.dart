@@ -44,10 +44,9 @@ class JobDraft {
         id: json['id'] as String,
         status: json['status'] as String? ?? 'pending',
         voiceUrl: json['voice_url'] as String?,
-        photoUrls: (json['photo_urls'] as List?)
-                ?.map((e) => e as String)
-                .toList() ??
-            const [],
+        photoUrls:
+            (json['photo_urls'] as List?)?.map((e) => e as String).toList() ??
+                const [],
         textInput: json['text_input'] as String?,
         address: json['address'] as String?,
         location: json['location'] is Map<String, dynamic>

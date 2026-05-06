@@ -1,0 +1,45 @@
+appId: ${APP_ID}
+name: 05 - Assignment Lifecycle
+tags:
+    - requires-seed
+---
+- launchApp:
+        clearState: true
+- assertVisible: "Welcome to IshHub"
+- tapOn: "Phone"
+- eraseText
+- inputText: ${WORKER_PHONE}
+- tapOn: "Send code"
+- assertVisible: "Verification code"
+- tapOn: "• • • • • •"
+- inputText: ${OTP_CODE}
+- tapOn: "Verify"
+- assertVisible: "Feed"
+- tapOn:
+    point: "37%,91%"
+- assertVisible:
+    text: "Work hub|My jobs"
+- tapOn:
+    text: "Active work"
+    optional: true
+- tapOn: "Open job"
+- assertVisible:
+    text: "Job details|Maestro Phase 9 Assignment Job"
+- swipe:
+    start: "50%,86%"
+    end: "50%,45%"
+    duration: 500
+- tapOn: "I arrived"
+- assertVisible:
+    text: "Arrived|Started work|Job details"
+- tapOn: "Started work"
+- assertVisible:
+    text: "Started|Done|Job details"
+    optional: true
+- swipe:
+    start: "50%,78%"
+    end: "50%,58%"
+    duration: 400
+- tapOn: "Done"
+- assertVisible:
+    text: "Done|Confirm|Job details"

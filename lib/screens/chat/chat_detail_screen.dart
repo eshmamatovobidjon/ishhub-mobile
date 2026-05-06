@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../models/chat.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
@@ -52,7 +53,10 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
     } catch (_) {
-      if (mounted) showSnack(context, 'Yuborib bo\u02bclmadi', error: true);
+      if (mounted) {
+        showSnack(context, AppLocalizations.of(context).chatSendFailed,
+            error: true);
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -60,12 +64,13 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(threadMessagesProvider(widget.threadId));
     final me = ref.watch(authControllerProvider);
     final myId = me is AuthSignedIn ? me.user.id : null;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title ?? 'Suhbat')),
+      appBar: AppBar(title: Text(widget.title ?? l10n.chatTitle)),
       body: Column(
         children: [
           Expanded(
@@ -78,11 +83,10 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   .refresh(),
               data: (msgs) => ListView.builder(
                 controller: _scroll,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 itemCount: msgs.length,
-                itemBuilder: (_, i) =>
-                    _Bubble(msg: msgs[i], myId: myId),
+                itemBuilder: (_, i) => _Bubble(msg: msgs[i], myId: myId),
               ),
             ),
           ),
@@ -99,11 +103,11 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
                       onChanged: (_) => ref
-                          .read(threadMessagesProvider(widget.threadId)
-                              .notifier)
+                          .read(
+                              threadMessagesProvider(widget.threadId).notifier)
                           .sendTyping(),
-                      decoration: const InputDecoration(
-                        hintText: 'Xabar yozing… (\u0040yordam — AI yordamchi)',
+                      decoration: InputDecoration(
+                        hintText: l10n.chatMessageHint,
                         border: OutlineInputBorder(),
                         isDense: true,
                       ),
@@ -116,8 +120,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child:
-                                CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.send),
                   ),
@@ -139,6 +142,7 @@ class _Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isMine = myId != null && msg.senderId == myId;
     final isAi = msg.isFromAi;
     final align = isMine ? Alignment.centerRight : Alignment.centerLeft;
@@ -155,7 +159,7 @@ class _Bubble extends StatelessWidget {
     final body = msg.kind == 'voice'
         ? (msg.transcript?.isNotEmpty == true
             ? msg.transcript!
-            : '\ud83c\udfa4 Ovozli xabar')
+            : l10n.chatVoiceMessage)
         : msg.body;
     return Align(
       alignment: align,
@@ -182,9 +186,9 @@ class _Bubble extends StatelessWidget {
                     children: [
                       Icon(Icons.auto_awesome, size: 14, color: fg),
                       const SizedBox(width: 4),
-                      Text('Yordam AI',
-                          style: theme.textTheme.labelSmall
-                              ?.copyWith(color: fg)),
+                      Text(l10n.chatAiName,
+                          style:
+                              theme.textTheme.labelSmall?.copyWith(color: fg)),
                     ],
                   ),
                 ),
@@ -208,11 +212,12 @@ class _Hint extends StatelessWidget {
   const _Hint();
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context);
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'Suhbatni boshlang. Narx yoki vaqt haqida kelishish uchun \u0040yordam deb yozing — AI yordam beradi.',
+          l10n.chatStartHint,
           textAlign: TextAlign.center,
         ),
       ),

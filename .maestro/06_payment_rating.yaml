@@ -1,0 +1,47 @@
+appId: ${APP_ID}
+name: 06 - Payment And Rating
+tags:
+    - requires-seed
+---
+- launchApp:
+        clearState: true
+- assertVisible: "Welcome to IshHub"
+- tapOn: "Phone"
+- eraseText
+- inputText: ${CLIENT_PHONE}
+- tapOn: "Send code"
+- assertVisible: "Verification code"
+- tapOn: "• • • • • •"
+- inputText: ${OTP_CODE}
+- tapOn: "Verify"
+- tapOn:
+    point: "37%,91%"
+- assertVisible:
+    text: "Work hub|My jobs"
+- tapOn: "Maestro Phase 9 Payment Job"
+- assertVisible:
+    text: "Job details|Maestro Phase 9 Payment Job"
+- swipe:
+    direction: UP
+- tapOn: "I paid"
+- assertVisible: "Record payment"
+- tapOn:
+    text: 'Amount \(UZS\)'
+    optional: true
+- eraseText
+- inputText: "170000"
+- hideKeyboard
+- tapOn: "I paid"
+- assertVisible:
+    text: "Payment recorded|Waiting for worker confirmation|Job details"
+- tapOn: "Rate"
+- assertVisible: "Rate experience"
+- tapOn:
+    text: "Skilled"
+    optional: true
+- tapOn: 'Review \(optional\)'
+- inputText: "Great Phase 9 E2E closeout."
+- hideKeyboard
+- tapOn: "Rate"
+- assertVisible:
+    text: "Rating submitted|Job details"

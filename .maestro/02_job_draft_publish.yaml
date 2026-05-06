@@ -1,0 +1,58 @@
+appId: ${APP_ID}
+name: 02 - Job Draft, Review, Publish
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to IshHub"
+- tapOn: "Phone"
+- eraseText
+- inputText: ${CLIENT_PHONE}
+- tapOn: "Send code"
+- assertVisible: "Verification code"
+- tapOn: "• • • • • •"
+- inputText: ${OTP_CODE}
+- tapOn: "Verify"
+- assertVisible: "Profile setup"
+- tapOn: "Full name"
+- inputText: "Maestro Client"
+- tapOn: "City"
+- eraseText
+- inputText: "Toshkent"
+- tapOn: "District or neighborhood"
+- inputText: "Mirzo Ulugbek"
+- hideKeyboard
+- tapOn: "Continue"
+- assertVisible: "Feed"
+- tapOn:
+    point: "37%,91%"
+- tapOn: "New job"
+- assertVisible: "New job"
+- tapOn: "About the job"
+- inputText: "Need help fixing a leaking kitchen sink tomorrow morning. Budget is 150000 UZS."
+- tapOn: "Address (optional)"
+- inputText: "Mirzo Ulugbek, Tashkent"
+- hideKeyboard
+- tapOn: "Choose a location"
+- assertVisible:
+    text: "Location selected|Could not get location"
+    optional: true
+- swipe:
+    direction: UP
+- tapOn: "Analyze with AI"
+- assertVisible:
+    text: "Review|AI is analyzing your job"
+- assertVisible:
+    text: "Publish|AI analysis did not finish"
+- tapOn: "Title"
+- inputText: "Fix leaking kitchen sink"
+- hideKeyboard
+- swipe:
+    direction: UP
+- tapOn: "Budget (UZS)"
+- inputText: "150000"
+- hideKeyboard
+- tapOn:
+    text: "Publish"
+    optional: true
+- assertVisible:
+    text: "Job details|Job published"

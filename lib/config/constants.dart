@@ -21,4 +21,5 @@ class AppConstants {
   static const String kAccessToken = 'access_token';
   static const String kRefreshToken = 'refresh_token';
   static const String kLocale = 'locale';
+  static const String kThemeMode = 'theme_mode';
 }

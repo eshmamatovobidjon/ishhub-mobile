@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/repositories.dart';
 import '../../services/api_client.dart';
+import '../../utils/offer_input.dart';
 import '../../widgets/snack.dart';
 
 /// Bottom-sheet form: a worker proposes terms to the job creator.
@@ -11,6 +13,8 @@ import '../../widgets/snack.dart';
 class OfferComposeSheet extends ConsumerStatefulWidget {
   final String jobId;
   final String recipientId;
+  final String? jobTitle;
+  final String? jobPriceLabel;
   final String? defaultPricingModel;
   final num? suggestedAmount;
 
@@ -18,6 +22,8 @@ class OfferComposeSheet extends ConsumerStatefulWidget {
     super.key,
     required this.jobId,
     required this.recipientId,
+    this.jobTitle,
+    this.jobPriceLabel,
     this.defaultPricingModel,
     this.suggestedAmount,
   });
@@ -26,6 +32,8 @@ class OfferComposeSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     required String jobId,
     required String recipientId,
+    String? jobTitle,
+    String? jobPriceLabel,
     String? defaultPricingModel,
     num? suggestedAmount,
   }) {
@@ -39,6 +47,8 @@ class OfferComposeSheet extends ConsumerStatefulWidget {
         child: OfferComposeSheet(
           jobId: jobId,
           recipientId: recipientId,
+          jobTitle: jobTitle,
+          jobPriceLabel: jobPriceLabel,
           defaultPricingModel: defaultPricingModel,
           suggestedAmount: suggestedAmount,
         ),
@@ -51,6 +61,7 @@ class OfferComposeSheet extends ConsumerStatefulWidget {
 }
 
 class _OfferComposeSheetState extends ConsumerState<OfferComposeSheet> {
+  final _form = GlobalKey<FormState>();
   late String _pricingModel;
   final _amount = TextEditingController();
   final _hours = TextEditingController();
@@ -60,7 +71,10 @@ class _OfferComposeSheetState extends ConsumerState<OfferComposeSheet> {
   @override
   void initState() {
     super.initState();
-    _pricingModel = widget.defaultPricingModel ?? 'fixed';
+    final dpm = widget.defaultPricingModel;
+    // Offers must be concrete (fixed/hourly). If the parent job is negotiable,
+    // default the offer to fixed and let the worker pick.
+    _pricingModel = (dpm == 'fixed' || dpm == 'hourly') ? dpm! : 'fixed';
     if (widget.suggestedAmount != null) {
       _amount.text = widget.suggestedAmount!.toString();
     }
@@ -75,11 +89,9 @@ class _OfferComposeSheetState extends ConsumerState<OfferComposeSheet> {
   }
 
   Future<void> _submit() async {
-    final amount = num.tryParse(_amount.text.trim());
-    if (_pricingModel != 'negotiable' && (amount == null || amount <= 0)) {
-      showSnack(context, 'Narxni kiriting', error: true);
-      return;
-    }
+    final l10n = AppLocalizations.of(context);
+    if (!(_form.currentState?.validate() ?? false)) return;
+    final amount = parsePositiveAmount(_amount.text);
     setState(() => _busy = true);
     try {
       await ref.read(offersRepositoryProvider).create(
@@ -87,85 +99,132 @@ class _OfferComposeSheetState extends ConsumerState<OfferComposeSheet> {
             recipientId: widget.recipientId,
             pricingModel: _pricingModel,
             amount: amount,
-            durationEstimateHours: double.tryParse(_hours.text.trim()),
+            durationEstimateHours: parseOptionalPositiveHours(_hours.text),
             note: _note.text.trim(),
           );
       if (!mounted) return;
       Navigator.of(context).pop(true);
-      showSnack(context, 'Taklif yuborildi');
+      showSnack(context, l10n.offerSent);
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
     } catch (_) {
-      if (mounted) showSnack(context, 'Yuborib bo\u02bclmadi', error: true);
+      if (mounted) showSnack(context, l10n.offerSendFailed, error: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
+  void _appendNote(String text) {
+    final current = _note.text.trim();
+    _note.text = current.isEmpty ? text : '$current. $text';
+    _note.selection = TextSelection.collapsed(offset: _note.text.length);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Taklif yuborish', style: theme.textTheme.titleLarge),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _pricingModel,
-              decoration: const InputDecoration(labelText: 'Narx turi'),
-              items: const [
-                DropdownMenuItem(value: 'fixed', child: Text('Belgilangan')),
-                DropdownMenuItem(value: 'hourly', child: Text('Soatlik')),
-                DropdownMenuItem(
-                    value: 'negotiable', child: Text('Kelishiladi')),
+        child: Form(
+          key: _form,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.offerComposeTitle, style: theme.textTheme.titleLarge),
+              if (widget.jobTitle != null || widget.jobPriceLabel != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  l10n.offerJobRecap(
+                    widget.jobTitle ?? l10n.jobUntitled,
+                    widget.jobPriceLabel ?? l10n.pricingNegotiable,
+                  ),
+                  style: theme.textTheme.bodySmall,
+                ),
               ],
-              onChanged: (v) => setState(() => _pricingModel = v ?? 'fixed'),
-            ),
-            const SizedBox(height: 12),
-            if (_pricingModel != 'negotiable')
-              TextField(
+              const SizedBox(height: 16),
+              SegmentedButton<String>(
+                segments: [
+                  ButtonSegment(value: 'fixed', label: Text(l10n.pricingFixed)),
+                  ButtonSegment(
+                      value: 'hourly', label: Text(l10n.pricingHourly)),
+                ],
+                selected: {_pricingModel},
+                onSelectionChanged: (v) =>
+                    setState(() => _pricingModel = v.first),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
                 controller: _amount,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: _pricingModel == 'hourly'
-                      ? 'Soatlik tarif (UZS)'
-                      : 'Umumiy summa (UZS)',
+                      ? l10n.offerHourlyRateLabel
+                      : l10n.offerTotalAmountLabel,
+                ),
+                validator: (value) {
+                  if (parsePositiveAmount(value ?? '') == null) {
+                    return l10n.offerAmountRequired;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _hours,
+                keyboardType: TextInputType.number,
+                decoration:
+                    InputDecoration(labelText: l10n.offerEstimatedHoursLabel),
+                validator: (value) {
+                  if (hasInvalidOptionalHours(value ?? '')) {
+                    return l10n.offerHoursInvalid;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  ActionChip(
+                    label: Text(l10n.offerQuickToday),
+                    onPressed:
+                        _busy ? null : () => _appendNote(l10n.offerQuickToday),
+                  ),
+                  ActionChip(
+                    label: Text(l10n.offerQuickTools),
+                    onPressed:
+                        _busy ? null : () => _appendNote(l10n.offerQuickTools),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _note,
+                maxLines: 3,
+                maxLength: 500,
+                decoration: InputDecoration(
+                  labelText: l10n.offerNoteLabel,
+                  hintText: l10n.offerNoteHint,
                 ),
               ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _hours,
-              keyboardType: TextInputType.number,
-              decoration:
-                  const InputDecoration(labelText: 'Taxminiy soat (ixtiyoriy)'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _note,
-              maxLines: 3,
-              maxLength: 500,
-              decoration: const InputDecoration(
-                labelText: 'Izoh (ixtiyoriy)',
-                hintText: 'masalan: Bugun soat 14:00 da kelaman',
+              const SizedBox(height: 8),
+              FilledButton.icon(
+                onPressed: _busy ? null : _submit,
+                icon: _busy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.send),
+                label: Text(l10n.offerSubmit),
               ),
-            ),
-            const SizedBox(height: 8),
-            FilledButton.icon(
-              onPressed: _busy ? null : _submit,
-              icon: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.send),
-              label: const Text('Yuborish'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

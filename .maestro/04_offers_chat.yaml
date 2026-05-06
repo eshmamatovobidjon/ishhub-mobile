@@ -1,0 +1,77 @@
+appId: ${APP_ID}
+name: 04 - Offer, Applicant Review, Chat
+tags:
+    - requires-seed
+---
+- launchApp:
+        clearState: true
+- assertVisible: "Welcome to IshHub"
+- tapOn: "Phone"
+- eraseText
+- inputText: ${WORKER_PHONE}
+- tapOn: "Send code"
+- assertVisible: "Verification code"
+- tapOn: "• • • • • •"
+- inputText: ${OTP_CODE}
+- tapOn: "Verify"
+- assertVisible: "Feed"
+- tapOn:
+    point: "50%,35%"
+- assertVisible:
+    text: "Job details|Maestro Phase 9 Offer Job"
+- tapOn: "Send offer"
+- assertVisible: "Send offer"
+- tapOn:
+    text: 'Total amount \(UZS\)|Hourly rate \(UZS\)'
+    optional: true
+- eraseText
+- inputText: "140000"
+- hideKeyboard
+- tapOn: "Send"
+- assertVisible:
+    text: "Offer sent|My offers|Job details"
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to IshHub"
+- tapOn: "Phone"
+- eraseText
+- inputText: ${CLIENT_PHONE}
+- tapOn: "Send code"
+- assertVisible: "Verification code"
+- tapOn: "• • • • • •"
+- inputText: ${OTP_CODE}
+- tapOn: "Verify"
+- tapOn:
+    point: "37%,91%"
+- assertVisible:
+    text: "Work hub|My jobs"
+- tapOn:
+    point: "50%,64%"
+- assertVisible:
+    text: "Incoming offers|Maestro Phase 9 Worker"
+- swipe:
+    start: "50%,86%"
+    end: "50%,50%"
+    duration: 500
+- tapOn: "Accept"
+- assertVisible:
+    text: "Offer accepted|Open chat|assigned|Job details"
+- swipe:
+    direction: UP
+- tapOn:
+    text: "Open chat"
+    optional: true
+- assertVisible:
+    text: "Write a message|Start the chat|Chats"
+    optional: true
+- tapOn:
+        text: 'Write a message... \(@yordam - AI assistant\)'
+        optional: true
+- inputText: "@yordam Please summarize the agreed work."
+- hideKeyboard
+- tapOn:
+    point: "92%,94%"
+    optional: true
+- assertVisible:
+    text: "agreed work|@yordam|Chats"
+    optional: true

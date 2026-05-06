@@ -95,13 +95,27 @@ class ApiClient {
   Dio get raw => _dio;
 
   Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) =>
-      _dio.get<T>(path, queryParameters: query);
+      _unwrap(() => _dio.get<T>(path, queryParameters: query));
 
   Future<Response<T>> post<T>(String path, {Object? data}) =>
-      _dio.post<T>(path, data: data);
+      _unwrap(() => _dio.post<T>(path, data: data));
 
   Future<Response<T>> put<T>(String path, {Object? data}) =>
-      _dio.put<T>(path, data: data);
+      _unwrap(() => _dio.put<T>(path, data: data));
 
-  Future<Response<T>> delete<T>(String path) => _dio.delete<T>(path);
+  Future<Response<T>> patch<T>(String path, {Object? data}) =>
+      _unwrap(() => _dio.patch<T>(path, data: data));
+
+  Future<Response<T>> delete<T>(String path) =>
+      _unwrap(() => _dio.delete<T>(path));
+
+  Future<Response<T>> _unwrap<T>(Future<Response<T>> Function() request) async {
+    try {
+      return await request();
+    } on DioException catch (e) {
+      final error = e.error;
+      if (error is ApiException) throw error;
+      rethrow;
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../services/api_client.dart';
 
 /// Unified loading / error / empty / data view for any AsyncValue list+detail.
@@ -42,6 +43,7 @@ class _DefaultEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -54,7 +56,7 @@ class _DefaultEmpty extends StatelessWidget {
               color: Theme.of(context).colorScheme.outline,
             ),
             const SizedBox(height: 12),
-            const Text('Hozircha bo‘sh', textAlign: TextAlign.center),
+            Text(l10n.asyncEmpty, textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -69,6 +71,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -86,7 +89,7 @@ class _ErrorView extends StatelessWidget {
               const SizedBox(height: 16),
               FilledButton.tonal(
                 onPressed: onRetry,
-                child: const Text('Qayta urinish'),
+                child: Text(l10n.asyncRetry),
               ),
             ],
           ],

@@ -1,4 +1,6 @@
 import 'geo.dart';
+import 'payment.dart';
+import 'rating.dart';
 
 /// Maps onto JobListSerializer for feed/list and JobSerializer for detail.
 /// Detail-only fields are nullable so one class serves both shapes.
@@ -6,7 +8,8 @@ class Job {
   final String id;
   final String? creatorId; // detail only
   final String kind; // request | offer
-  final String status; // open|matching|assigned|in_progress|completed|cancelled|disputed
+  final String
+      status; // open|matching|assigned|in_progress|completed|cancelled|disputed
   final String title;
   final String? category;
   final String urgency; // flexible|today|urgent
@@ -81,14 +84,12 @@ class Job {
       description: json['description'] as String?,
       city: json['city'] as String?,
       district: json['district'] as String?,
-      skillTags: (json['skill_tags'] as List?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
+      skillTags:
+          (json['skill_tags'] as List?)?.map((e) => e as String).toList() ??
+              const [],
       aiConfidence: json['ai_confidence'] as num?,
       assignments: (json['assignments'] as List?)
-              ?.map((e) =>
-                  JobAssignment.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => JobAssignment.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
     );
@@ -105,6 +106,8 @@ class JobAssignment {
   final DateTime? doneAt;
   final DateTime? completedAt;
   final num? finalAmount;
+  final Payment? payment;
+  final List<Rating> ratings;
 
   const JobAssignment({
     required this.id,
@@ -116,6 +119,8 @@ class JobAssignment {
     required this.doneAt,
     required this.completedAt,
     required this.finalAmount,
+    this.payment,
+    this.ratings = const [],
   });
 
   factory JobAssignment.fromJson(Map<String, dynamic> json) => JobAssignment(
@@ -130,6 +135,34 @@ class JobAssignment {
         finalAmount: json['final_amount'] is String
             ? num.tryParse(json['final_amount'] as String)
             : json['final_amount'] as num?,
+        payment: json['payment'] is Map<String, dynamic>
+            ? Payment.fromJson(json['payment'] as Map<String, dynamic>)
+            : null,
+        ratings: (json['ratings'] as List?)
+                ?.map((e) => Rating.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            const [],
+      );
+
+  bool hasRated(String userId) => ratings.any((r) => r.raterId == userId);
+}
+
+class WorkerAssignment {
+  final JobAssignment assignment;
+  final Job job;
+
+  const WorkerAssignment({
+    required this.assignment,
+    required this.job,
+  });
+
+  String get id => assignment.id;
+  String get status => assignment.status;
+
+  factory WorkerAssignment.fromJson(Map<String, dynamic> json) =>
+      WorkerAssignment(
+        assignment: JobAssignment.fromJson(json),
+        job: Job.fromJson(json['job'] as Map<String, dynamic>),
       );
 }
 
@@ -138,6 +171,7 @@ class JobMatch {
   final Job job;
   final double score;
   final double distanceKm;
+  final bool distanceKnown;
   final int skillOverlap;
   final double embeddingSimilarity;
 
@@ -145,6 +179,7 @@ class JobMatch {
     required this.job,
     required this.score,
     required this.distanceKm,
+    required this.distanceKnown,
     required this.skillOverlap,
     required this.embeddingSimilarity,
   });
@@ -153,6 +188,7 @@ class JobMatch {
         job: Job.fromJson(json['job'] as Map<String, dynamic>),
         score: (json['score'] as num).toDouble(),
         distanceKm: (json['distance_km'] as num).toDouble(),
+        distanceKnown: json['distance_known'] as bool? ?? true,
         skillOverlap: (json['skill_overlap'] as num).toInt(),
         embeddingSimilarity:
             (json['embedding_similarity'] as num? ?? 0).toDouble(),

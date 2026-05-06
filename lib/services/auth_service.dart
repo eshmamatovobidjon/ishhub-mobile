@@ -15,7 +15,8 @@ class AuthService {
 
   /// Verify the OTP. Persists tokens and returns the authenticated user.
   /// Backend returns: `{user: {...}, tokens: {access, refresh}}`.
-  Future<AppUser> verifyOtp({required String phone, required String code}) async {
+  Future<AppUser> verifyOtp(
+      {required String phone, required String code}) async {
     final r = await api.post<Map<String, dynamic>>(
       '/auth/verify-otp/',
       data: {'phone': phone, 'code': code},
@@ -28,6 +29,30 @@ class AuthService {
 
   Future<AppUser> me() async {
     final r = await api.get<Map<String, dynamic>>('/users/me/');
+    return AppUser.fromJson(r.data!);
+  }
+
+  Future<AppUser> updateMe({
+    String? name,
+    String? avatarUrl,
+    String? language,
+    String? city,
+    String? district,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final r = await api.patch<Map<String, dynamic>>(
+      '/users/me/',
+      data: {
+        if (name != null) 'name': name,
+        if (avatarUrl != null) 'avatar_url': avatarUrl,
+        if (language != null) 'language': language,
+        if (city != null) 'city': city,
+        if (district != null) 'district': district,
+        if (latitude != null) 'latitude': latitude,
+        if (longitude != null) 'longitude': longitude,
+      },
+    );
     return AppUser.fromJson(r.data!);
   }
 
